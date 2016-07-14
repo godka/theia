@@ -28,15 +28,22 @@ namespace TheiaClient
             myWebClient.DownloadDataCompleted += myWebClient_DownloadDataCompleted;
             myWebClient.DownloadDataAsync(uri, this);
              */
-            var tmp = myWebClient.DownloadData(uri);
-            var reader = new inireader(new MemoryStream(tmp));
-            var num = reader.ReadIniInt("list", "num");
-            for (int i = 0; i < num; i++)
+            try
             {
-                var file = reader.ReadIniString("list", "list" + i.ToString());
-                Global.Global_mu38lists.Add(file);
-                //frm.listBox1.Items.Add(file);
-                //frm.DownLoadm3u8FromInternet(file);
+                var tmp = myWebClient.DownloadData(uri);
+                var reader = new inireader(new MemoryStream(tmp));
+                var num = reader.ReadIniInt("list", "num");
+                for (int i = 0; i < num; i++)
+                {
+                    var file = reader.ReadIniString("list", "list" + i.ToString());
+                    Global.Global_mu38lists.Add(file);
+                    //frm.listBox1.Items.Add(file);
+                    //frm.DownLoadm3u8FromInternet(file);
+                }
+            }
+            catch
+            {
+                MessageBox.Show("连接失败！");
             }
         }
         //public void DownLoadm3u8FromInternet(string m3u8file)

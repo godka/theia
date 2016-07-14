@@ -18,9 +18,7 @@ namespace TheiaClient
         int index = 0;
         private void Form1_Load(object sender, EventArgs e)
         {
-            Theia.P2P.HeartBreak.Client cli = new Theia.P2P.HeartBreak.Client();
-            cli.Generate();
-            MessageBox.Show(cli.ToJson());
+            
             foreach (var t in Global.Global_mu38lists)
             {
                 listBox1.Items.Add(t);
@@ -40,9 +38,10 @@ namespace TheiaClient
 
         private void button2_Click(object sender, EventArgs e)
         {
-
-            index += 1000;
-            this.hlsplayer1.VideoTime = index;
+            Theia.P2P.HeartBreak.Client cli = new Theia.P2P.HeartBreak.Client();
+            var str = cli.ToJson();
+            var ret = Theia.P2P.Basic.JsonBase.GetMsgType(str);
+            MessageBox.Show(ret.ToString());
         }
     }
 }

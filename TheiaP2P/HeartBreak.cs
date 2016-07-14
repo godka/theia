@@ -9,14 +9,12 @@ namespace Theia.P2P
     {
         public class ClientFile
         {
-            public byte[] tmp;
             public List<int> ClientList;
             public string FileName;
             public ClientFile(string file)
             {
                 FileName = file;
                 ClientList = new List<int>();
-                tmp = new byte[] { 1, 2, 3, 4 };
             }
             public void Add(int id)
             {
@@ -46,11 +44,11 @@ namespace Theia.P2P
         }
         public class Client : Basic.JsonBase
         {
-            
             public int ClientID;
             public List<ClientFile> files;
             public Client(int id = 0)
             {
+                MsgType = 101;
                 ClientID = id;
                 files = new List<ClientFile>(); string tmpDir = "./tmp";
                 files.Clear();
@@ -86,6 +84,11 @@ namespace Theia.P2P
         public class Server : Basic.JsonBase
         {
             public int OK;
+            public Server()
+            {
+                MsgType = 201;
+                OK = 1;
+            }
         }
 
     }
