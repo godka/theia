@@ -2,55 +2,91 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using System.IO;
 namespace Theia.P2P
 {
     public class HeartBreak
     {
-        public class Client : JsonBase
+        public class ClientFile
         {
-            public Client()
+            public byte[] tmp;
+            public List<int> ClientList;
+            public string FileName;
+            public ClientFile(string file)
             {
+                FileName = file;
+                ClientList = new List<int>();
+                tmp = new byte[] { 1, 2, 3, 4 };
+            }
+            public void Add(int id)
+            {
+                if (ClientList.Contains(id))
+                    return;
+                ClientList.Add(id);
+            }
+            public void Remove(int id)
+            {
+                if (ClientList.Contains(id))
+                {
+                    ClientList.Remove(id);
+                }
+            }
+            public int[] ToArray()
+            {
+                return ClientList.ToArray();
+            }
+            public int Get(int index)
+            {
+                return ClientList[index];
+            }
+            public int Len()
+            {
+                return ClientList.Count;
+            }
+        }
+        public class Client : Basic.JsonBase
+        {
+            
+            public int ClientID;
+            public List<ClientFile> files;
+            public Client(int id = 0)
+            {
+                ClientID = id;
+                files = new List<ClientFile>(); string tmpDir = "./tmp";
+                files.Clear();
+                if (Directory.Exists(tmpDir))
+                {
+                    var _files = Directory.GetFiles(tmpDir);
+                    foreach (var file in _files)
+                    {
+                        var simplefile = new FileInfo(file);
+                        files.Add(new ClientFile(simplefile.Name));
+                    }
+                }
+            }
+            public virtual void AddFile(string filename)
+            {
+                if (File.Exists("./tmp/" + filename))
+                {
+                    var simplefile = new FileInfo(filename);
+                    foreach (var tmp in files)
+                    {
+                        if (tmp.FileName.Equals(simplefile.Name))
+                            return;
+                    }
+                    files.Add(new ClientFile(simplefile.Name));
+                }
 
             }
             public override void Generate()
             {
-                //File
-                //base.Generate();
-            }
 
+            }
         }
-        public class JsonBase
+        public class Server : Basic.JsonBase
         {
-            StringWriter sw = null;
-            JsonWriter writer = null;
-            public virtual void Generate()
-            {
-
-            }
-            public JsonBase()
-            {
-                sw = new StringWriter();
-                writer = new JsonTextWriter(sw);
-                writer.WriteStartObject();
-            }
-            public void WriteKeyValue(string key, string value)
-            {
-                writer.WritePropertyName(key);
-                writer.WriteValue(value);
-            }
-            public void WriteKeyValue(string key, int value)
-            {
-                writer.WritePropertyName(key);
-                writer.WriteValue(value);
-            }
-            public virtual string ToJson()
-            {
-                writer.WriteEndObject();
-                string jsonText = sw.GetStringBuilder().ToString();
-                return jsonText;
-            }
+            public int OK;
         }
+
     }
 }

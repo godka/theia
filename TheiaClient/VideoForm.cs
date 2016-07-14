@@ -19,6 +19,7 @@ namespace TheiaClient
         private void Form1_Load(object sender, EventArgs e)
         {
             Theia.P2P.HeartBreak.Client cli = new Theia.P2P.HeartBreak.Client();
+            cli.Generate();
             MessageBox.Show(cli.ToJson());
             foreach (var t in Global.Global_mu38lists)
             {
