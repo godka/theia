@@ -91,8 +91,8 @@ namespace TheiaClient
         static void myWebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             MainForm frm = (MainForm)e.UserState;
-            frm.progressBar1.Maximum = 100;
-            frm.progressBar1.Value = e.ProgressPercentage;
+            //frm.progressBar1.Maximum = 100;
+            //frm.progressBar1.Value = e.ProgressPercentage;
            // frm.label3.Text = string.Format("downloaded {0} of {1} bytes. {2} % complete...",
            //     e.BytesReceived,
            //     e.TotalBytesToReceive,
@@ -104,10 +104,15 @@ namespace TheiaClient
             var simple_ip = this.textBox1.Text;
             var simple_port = this.textBox2.Text;
             var simple_url = string.Format("http://{0}:{1}/index.txt", simple_ip, simple_port);
+            Global.serverip = simple_ip;
+            Global.serverport = int.Parse(simple_port);
+            Global.trackerip = this.textBox3.Text;
+            Global.trackerport = int.Parse(this.textBox4.Text);
             DownLoadListFromInternet(simple_url);
         }
         private void button1_Click(object sender, EventArgs e)
         {
+            
             //listBox1.Items.Clear();
             button1.Enabled = false;
             //START DOWNLOAD

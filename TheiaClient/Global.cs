@@ -10,5 +10,8 @@ namespace TheiaClient
         public static List<string> Global_mu38lists = new List<string>();
         public static string serverip;
         public static int serverport;
+
+        public static string trackerip;
+        public static int trackerport;
     }
 }

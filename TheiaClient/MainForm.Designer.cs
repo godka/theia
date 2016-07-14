@@ -33,9 +33,12 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox3 = new System.Windows.Forms.TextBox();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -75,7 +78,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(164, 97);
+            this.button1.Location = new System.Drawing.Point(161, 209);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -83,32 +86,62 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(9, 68);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(230, 23);
-            this.progressBar1.TabIndex = 5;
-            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.textBox3);
+            this.groupBox1.Controls.Add(this.textBox4);
+            this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.textBox1);
             this.groupBox1.Controls.Add(this.textBox2);
-            this.groupBox1.Controls.Add(this.progressBar1);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(249, 128);
+            this.groupBox1.Size = new System.Drawing.Size(249, 246);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(26, 105);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(65, 12);
+            this.label3.TabIndex = 8;
+            this.label3.Text = "Tracker IP";
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(109, 102);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(74, 21);
+            this.textBox3.TabIndex = 6;
+            this.textBox3.Text = "127.0.0.1";
+            // 
+            // textBox4
+            // 
+            this.textBox4.Location = new System.Drawing.Point(109, 129);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(74, 21);
+            this.textBox4.TabIndex = 7;
+            this.textBox4.Text = "23583";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(26, 132);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(77, 12);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Trakcer Port";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(276, 154);
+            this.ClientSize = new System.Drawing.Size(276, 266);
             this.Controls.Add(this.groupBox1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -128,8 +161,11 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Label label4;
     }
 }
