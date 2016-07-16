@@ -48,6 +48,7 @@
     <Compile Include="HeartBreak.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Request.cs" />
+    <Compile Include="Udp.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

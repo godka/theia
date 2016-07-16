@@ -6,8 +6,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 namespace Theia.P2P
 {
+
     public class Basic
     {
+        public static class Common
+        {
+            public static int maxsize = 1024;//一个块最大1024
+        }
         public class JsonBase
         {
             public virtual int MsgType { get; set; }
