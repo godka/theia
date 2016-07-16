@@ -13,6 +13,7 @@ namespace Theia.P2P
             public int trunk;
             public Client(string _filename,int _trunk)
             {
+                //随便加一行，试试用vs pull
                 MsgType = 103;  //client 1问client2要东西
                 filename = _filename;
                 trunk = _trunk;
