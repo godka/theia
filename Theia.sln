@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theia", "Theia\Theia.csproj", "{531C0B68-1203-40F7-8C5F-A7558158CA81}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheiaClient", "TheiaClient\TheiaClient.csproj", "{9517B216-97D6-4424-B5EF-D8FC1D677F4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheiaP2P", "TheiaP2P\TheiaP2P.csproj", "{D77F827B-9B80-443E-B465-6B5BDC070801}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheiaServer", "TheiaServer\TheiaServer.csproj", "{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,18 +19,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|x86.ActiveCfg = Debug|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Debug|x86.Build.0 = Debug|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|Mixed Platforms.Build.0 = Release|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|x86.ActiveCfg = Release|x86
-		{531C0B68-1203-40F7-8C5F-A7558158CA81}.Release|x86.Build.0 = Release|x86
 		{9517B216-97D6-4424-B5EF-D8FC1D677F4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9517B216-97D6-4424-B5EF-D8FC1D677F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9517B216-97D6-4424-B5EF-D8FC1D677F4E}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
@@ -53,6 +41,16 @@ Global
 		{D77F827B-9B80-443E-B465-6B5BDC070801}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D77F827B-9B80-443E-B465-6B5BDC070801}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D77F827B-9B80-443E-B465-6B5BDC070801}.Release|x86.ActiveCfg = Release|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{74565C0D-E88C-4C24-9D2B-1C35CEDD8091}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

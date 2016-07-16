@@ -20,6 +20,11 @@ namespace Theia.P2P
             {
 
             }
+            public override string ToString()
+            {
+                return ToJson();
+                //return base.ToString();
+            }
             public virtual string ToJson()
             {
                 string jsonText = JsonConvert.SerializeObject(this);

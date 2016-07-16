@@ -44,12 +44,12 @@ namespace Theia.P2P
         }
         public class Client : Basic.JsonBase
         {
-            public int ClientID;
+            public int TickCount;
             public List<ClientFile> files;
-            public Client(int id = 0)
+            public Client(int tick = 0)
             {
                 MsgType = 101;
-                ClientID = id;
+                TickCount = tick;
                 files = new List<ClientFile>(); string tmpDir = "./tmp";
                 files.Clear();
                 if (Directory.Exists(tmpDir))

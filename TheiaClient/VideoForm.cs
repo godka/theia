@@ -16,12 +16,19 @@ namespace TheiaClient
         public VideoForm()
         {
             InitializeComponent();
-            udpsocket = new UDPSocket(34718);
+            udpsocket = new UDPSocket();
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
             udpsocket.StartRecvThreadListener();
-            this.FormClosed += VideoForm_FormClosed;
+            this.FormClosed += VideoForm_FormClosed; 
+            System.Threading.Timer ClientTimer = new System.Threading.Timer(OnClientSend, this, 0, 1000);
         }
-
+        private void OnClientSend(object obj)
+        {
+            int ticks = Environment.TickCount + Global.ServTick;
+            HeartBreak.Client cli = new HeartBreak.Client(ticks);
+            udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
+            udpsocket.DisConnection();
+        }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
             switch (Basic.JsonBase.GetMsgType(str))
@@ -29,6 +36,12 @@ namespace TheiaClient
                 case 101:
                     {
 
+                    }
+                    break;
+                case 205:
+                    {
+                        TimeTick.Server serv = (TimeTick.Server)Basic.JsonBase.FromJson(str);
+                        Global.ServTick = serv.Tick - Environment.TickCount;
                     }
                     break;
             }
@@ -44,7 +57,9 @@ namespace TheiaClient
         int index = 0;
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            TimeTick.Client cli = new TimeTick.Client();
+            udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
+            udpsocket.DisConnection();
             foreach (var t in Global.Global_mu38lists)
             {
                 listBox1.Items.Add(t);

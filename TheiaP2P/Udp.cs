@@ -120,8 +120,8 @@ namespace System.Net.Udp
         }
 
 
-
-        public UDPSocket(int LocalPort)
+        
+        public UDPSocket(int LocalPort = 0)
         {
             m_sendText = string.Empty;
             m_computers = new ArrayList();
@@ -157,9 +157,15 @@ namespace System.Net.Udp
             //初始化UDP对象 
             try
             {
-                m_Client = new UdpClient(m_LocalPort);
+                if (m_LocalPort == 0)
+                {
+                    m_Client = new UdpClient();
+                }
+                else
+                {
+                    m_Client = new UdpClient(m_LocalPort);
 
-
+                }
 
                 //SOCKETEventArrive("Initialize succeed by " + m_LocalPort.ToString() + " port");
             }
@@ -190,7 +196,27 @@ namespace System.Net.Udp
             }
         }
 
+        public void send(IPEndPoint endpoint, string str)
+        {
+            UdpClient udp = new UdpClient();
+            try
+            {
+                udp.Connect(endpoint);
+                // 连接后传送一个消息给ip主机 
+                Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
+                udp.Send(sendBytes, sendBytes.Length);
+            }
+            catch
+            {
+                //SOCKETEventArrive("Send:" + m_sendText + " failed");
+            }
+            finally
+            {
+                udp.Close();
+                udp = null;
+            }
 
+        }
         public void send(string ip,int port,string str)
         {
             UdpClient udp = new UdpClient();
@@ -239,7 +265,7 @@ namespace System.Net.Udp
             //Thread.Sleep(2000);
             //ASCII 编码 
             Encoding ASCII = Encoding.Default;
-            Thread.Sleep(10); //防止系统资源耗尽 
+            Thread.Sleep(1); //防止系统资源耗尽 
             while (!m_Done)
             {
 
@@ -252,7 +278,8 @@ namespace System.Net.Udp
                         Byte[] data = m_Client.Receive(ref endpoint);
                         //得到数据的ACSII的字符串形式 
                         string str = Encoding.UTF8.GetString(data);
-                        SOCKETEventArrive(endpoint,str);
+                        if (SOCKETEventArrive != null)
+                            SOCKETEventArrive(endpoint,str);
                     }
                     catch
                     {
@@ -260,7 +287,7 @@ namespace System.Net.Udp
                         //SOCKETEventArrive(ee.Message.ToString()); 
                     }
                 }
-                Thread.Sleep(10); //防止系统资源耗尽 
+                Thread.Sleep(1); //防止系统资源耗尽 
             }
         }
     }

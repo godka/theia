@@ -13,5 +13,6 @@ namespace TheiaClient
 
         public static string trackerip;
         public static int trackerport;
+        public static int ServTick = 0;
     }
 }
