@@ -198,13 +198,14 @@ namespace System.Net.Udp
 
         public void send(IPEndPoint endpoint, string str)
         {
-            UdpClient udp = new UdpClient();
+            //UdpClient udp = new UdpClient();
+            if (m_Client == null) return;
             try
             {
-                udp.Connect(endpoint);
+                m_Client.Connect(endpoint);
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
-                udp.Send(sendBytes, sendBytes.Length);
+                m_Client.Send(sendBytes, sendBytes.Length);
             }
             catch
             {
@@ -212,20 +213,19 @@ namespace System.Net.Udp
             }
             finally
             {
-                udp.Close();
-                udp = null;
+
             }
 
         }
         public void send(string ip,int port,string str)
         {
-            UdpClient udp = new UdpClient();
+            if (m_Client == null) return;
             try
             {
-                udp.Connect(ip, port);
+                m_Client.Connect(ip, port);
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
-                udp.Send(sendBytes, sendBytes.Length);
+                m_Client.Send(sendBytes, sendBytes.Length);
             }
             catch
             {
@@ -233,8 +233,7 @@ namespace System.Net.Udp
             }
             finally
             {
-                udp.Close();
-                udp = null;
+
             }
         }
 

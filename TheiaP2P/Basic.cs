@@ -32,13 +32,14 @@ namespace Theia.P2P
             }
             public static int GetMsgType(string str)
             {
-                var ret = (JObject)FromJson(str);
+                var ret = FromJson<JObject>(str);
                 return (int)ret["MsgType"];
             }
-            public static object FromJson(string str)
+            public static T FromJson<T>(string str)
             {
-                return JsonConvert.DeserializeObject(str);
+                return JsonConvert.DeserializeObject<T>(str);
             }
+
         }
     }
 }

@@ -16,11 +16,15 @@ namespace Theia.P2P
         }
         public class Server : Basic.JsonBase
         {
-            public int Tick;
+            public int Tick{get;set;}
             public Server()
             {
                 MsgType = 205;
                 Tick = Environment.TickCount;
+            }
+            public static Server FromJson(string str)
+            {
+                return (Server)Newtonsoft.Json.JsonConvert.DeserializeObject(str);
             }
         }
     }

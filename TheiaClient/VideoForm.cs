@@ -16,7 +16,7 @@ namespace TheiaClient
         public VideoForm()
         {
             InitializeComponent();
-            udpsocket = new UDPSocket();
+            udpsocket = new UDPSocket(0);
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
             udpsocket.StartRecvThreadListener();
             this.FormClosed += VideoForm_FormClosed; 
@@ -24,10 +24,14 @@ namespace TheiaClient
         }
         private void OnClientSend(object obj)
         {
+            if (Global.ServTick == int.MaxValue)
+            {
+                SendTick();
+                return;
+            } 
             int ticks = Environment.TickCount + Global.ServTick;
             HeartBreak.Client cli = new HeartBreak.Client(ticks);
             udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
-            udpsocket.DisConnection();
         }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
@@ -40,7 +44,7 @@ namespace TheiaClient
                     break;
                 case 205:
                     {
-                        TimeTick.Server serv = (TimeTick.Server)Basic.JsonBase.FromJson(str);
+                        TimeTick.Server serv = Basic.JsonBase.FromJson<TimeTick.Server>(str);
                         Global.ServTick = serv.Tick - Environment.TickCount;
                     }
                     break;
@@ -54,12 +58,16 @@ namespace TheiaClient
             Environment.Exit(0);
             //throw new NotImplementedException();
         }
-        int index = 0;
-        private void Form1_Load(object sender, EventArgs e)
+        private void SendTick()
         {
             TimeTick.Client cli = new TimeTick.Client();
             udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
-            udpsocket.DisConnection();
+        }
+        int index = 0;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            SendTick();
+            //udpsocket.DisConnection();
             foreach (var t in Global.Global_mu38lists)
             {
                 listBox1.Items.Add(t);
@@ -79,9 +87,9 @@ namespace TheiaClient
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Theia.P2P.HeartBreak.Client cli = new Theia.P2P.HeartBreak.Client();
+            var cli = new TimeTick.Server();
             var str = cli.ToJson();
-            var ret = Theia.P2P.Basic.JsonBase.GetMsgType(str);
+            var ret = (TimeTick.Server)TimeTick.Server.FromJson(str);
             MessageBox.Show(ret.ToString());
         }
 

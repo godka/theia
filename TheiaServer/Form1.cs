@@ -18,6 +18,7 @@ namespace TheiaServer
         Dictionary<string, HeartBreak.Client> clientlist;
         public Form1()
         {
+            Control.CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
             clientlist = new Dictionary<string, HeartBreak.Client>();
             System.Threading.Timer ClientCloseTimer = new System.Threading.Timer(OnClientClose, this, 0, 1000);
@@ -67,14 +68,14 @@ namespace TheiaServer
             OnRefreshListbox();
         }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
-        {
+            {
             //throw new NotImplementedException();
             switch (Basic.JsonBase.GetMsgType(str))
             {
                 case 101:
                     {
                         //heartbreak;
-                        HeartBreak.Client cli = (HeartBreak.Client)Basic.JsonBase.FromJson(str);
+                        HeartBreak.Client cli = Basic.JsonBase.FromJson<HeartBreak.Client>(str);
                         if (clientlist.ContainsKey(endpoint.ToString()))
                         {
                             clientlist[endpoint.ToString()] = cli;
