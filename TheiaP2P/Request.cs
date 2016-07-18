@@ -32,6 +32,7 @@ namespace Theia.P2P
         public class Server : Basic.JsonBase
         {
             public string FileName;
+            public long Filelen;
             public List<ServerFile> FileList;
             public Server()
             {

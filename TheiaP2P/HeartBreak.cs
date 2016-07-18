@@ -11,9 +11,11 @@ namespace Theia.P2P
         {
             public List<int> ClientList;
             public string FileName;
-            public ClientFile(string file)
+            public long Filelen;
+            public ClientFile(string file,long len)
             {
                 FileName = file;
+                Filelen = len;
                 ClientList = new List<int>();
             }
             public void Add(int id)
@@ -58,9 +60,31 @@ namespace Theia.P2P
                     foreach (var file in _files)
                     {
                         var simplefile = new FileInfo(file);
-                        files.Add(new ClientFile(simplefile.Name));
+                        files.Add(new ClientFile(simplefile.Name,simplefile.Length));
                     }
                 }
+            }
+            public virtual long GetFilelen(string filename)
+            {
+                foreach (var t in files)
+                {
+                    if (t.FileName.Equals(filename))
+                    {
+                        return t.Filelen;
+                    }
+                }
+                return 0;
+            }
+            public virtual bool ContainsFile(string filename)
+            {
+                foreach (var t in files)
+                {
+                    if (t.FileName.Equals(filename))
+                    {
+                        return true;
+                    }
+                }
+                return false;
             }
             public virtual void AddFile(string filename)
             {
@@ -72,7 +96,7 @@ namespace Theia.P2P
                         if (tmp.FileName.Equals(simplefile.Name))
                             return;
                     }
-                    files.Add(new ClientFile(simplefile.Name));
+                    files.Add(new ClientFile(simplefile.Name,simplefile.Length));
                 }
 
             }

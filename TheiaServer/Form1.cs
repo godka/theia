@@ -67,6 +67,48 @@ namespace TheiaServer
             }
             OnRefreshListbox();
         }
+        void SplitIPstr(string ipstr, out string ip, out int port)
+        {
+            ip = string.Empty;
+            port = 0;
+            var t = ipstr.Split(':');
+            if (t.Length > 1)
+            {
+                ip = t[0];
+                port = int.Parse(t[1]);
+            }
+        }
+        Request.Server CheckListForRequest(Request.Client cli)
+        {
+            List<string> tmplist = new List<string>();
+            var filename = cli.RequestFileName;
+            long filelen = 0;
+            foreach (var t in clientlist)
+            {
+                var val = t.Value;
+                if (val.ContainsFile(filename))
+                {
+                    if(filelen == 0)
+                        filelen = val.GetFilelen(filename);
+                    tmplist.Add(t.Key);
+                }
+            }
+            
+            long len = 0;
+            int index = 0;
+            Request.Server serv = new Request.Server();
+            serv.FileName = filename;
+            serv.Filelen = filelen;
+            while (len < filelen)
+            {
+                string ip;int port;
+                SplitIPstr(tmplist[index % tmplist.Count],out ip,out port);
+                serv.Add(ip, port, index);
+                index++;
+                len += Basic.Common.maxsize;
+            }
+            return serv;
+        }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
             {
             //throw new NotImplementedException();
@@ -93,7 +135,8 @@ namespace TheiaServer
                     {
                         Request.Client cli = Basic.JsonBase.FromJson<Request.Client>(str);
                         string filename = cli.RequestFileName;
-
+                        var ans = CheckListForRequest(cli);
+                        udpsocket.send(endpoint, ans.ToString());
                     }
                     break;
                 case 105:
@@ -101,6 +144,7 @@ namespace TheiaServer
                         TimeTick.Server server = new TimeTick.Server();
                         udpsocket.send(endpoint, server.ToJson());
                     }
+                case 106:
                     break;
             }
         }
