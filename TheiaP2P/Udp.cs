@@ -166,7 +166,6 @@ namespace System.Net.Udp
                     m_Client = new UdpClient(m_LocalPort);
 
                 }
-
                 //SOCKETEventArrive("Initialize succeed by " + m_LocalPort.ToString() + " port");
             }
             catch

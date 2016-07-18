@@ -84,11 +84,15 @@ namespace TheiaServer
                         {
                             clientlist.Add(endpoint.ToString(), cli);
                         }
+                        HeartBreak.Server serv = new HeartBreak.Server();
+                        udpsocket.send(endpoint, serv.ToString());
                         //if(clientlist.)
                     }
                     break;
                 case 102:
                     {
+                        Request.Client cli = Basic.JsonBase.FromJson<Request.Client>(str);
+                        string filename = cli.RequestFileName;
 
                     }
                     break;

@@ -22,7 +22,7 @@ namespace Theia.P2P
             public string ip;
             public int port;
             public int trunk;
-            public int to;
+            public string filename;
             public ServerFile(string _ip,int _port,int _trunk){
                 ip = _ip;
                 port = _port;

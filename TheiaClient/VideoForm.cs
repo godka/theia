@@ -7,11 +7,14 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Net.Udp;
+using System.Threading;
+using System.IO;
 using Theia.P2P;
 namespace TheiaClient
 {
     public partial class VideoForm : Form
     {
+        Dictionary<string, VideoHandler> threadlists = new Dictionary<string, VideoHandler>();
         UDPSocket udpsocket = null;
         public VideoForm()
         {
@@ -37,15 +40,65 @@ namespace TheiaClient
         {
             switch (Basic.JsonBase.GetMsgType(str))
             {
-                case 101:
+                //for server
+                case 201:
                     {
-
+                        //nop
+                    }
+                    break;
+                case 202:
+                    {
+                        Theia.P2P.Request.Server server = Basic.JsonBase.FromJson<Request.Server>(str);
+                        VideoHandler handler = new VideoHandler(server, udpsocket);
+                        if (!threadlists.ContainsKey(server.FileName))
+                        {
+                            threadlists.Add(server.FileName, handler);
+                            handler.Start();
+                        }
+                        //server.FileName
                     }
                     break;
                 case 205:
                     {
                         TimeTick.Server serv = Basic.JsonBase.FromJson<TimeTick.Server>(str);
                         Global.ServTick = serv.Tick - Environment.TickCount;
+                    }
+                    break;
+
+                //for client
+                case 103:
+                    {
+                        FileTrans.Client cli = Basic.JsonBase.FromJson<FileTrans.Client>(str);
+                        using (FileStream fs = new FileStream("./tmp/" + cli.filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            fs.Seek(cli.trunk * Basic.Common.maxsize, SeekOrigin.Begin);
+                            byte[] tmp2 = new byte[Basic.Common.maxsize];
+                            int len = fs.Read(tmp2, 0, Basic.Common.maxsize);
+
+                            byte[] tmp = new byte[len];
+                            Array.Copy(tmp2, tmp, len);
+
+                            FileTrans.Server serv = new FileTrans.Server(cli.filename, cli.trunk, tmp);
+                            udpsocket.send(endpoint, serv.ToString());
+                        }
+                    }
+                    break;
+                case 104:
+                    {
+                        FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
+                        File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data);
+                    }
+                    break;
+                //这个基本上属于走错片场了
+                case 105:
+                    {
+                        MessageBox.Show("Error Message!");
+                    }
+                    break;
+                case 206:
+                    {
+                        WantsCall.Server serv = Basic.JsonBase.FromJson<WantsCall.Server>(str);
+                        udpsocket.send(serv.ip,serv.port,serv.ToString());
                     }
                     break;
             }

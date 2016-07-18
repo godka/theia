@@ -50,6 +50,7 @@
     <Compile Include="Request.cs" />
     <Compile Include="TimeTick.cs" />
     <Compile Include="Udp.cs" />
+    <Compile Include="WantsCall.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
