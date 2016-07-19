@@ -150,5 +150,33 @@ namespace TheiaClient
         {
             Environment.Exit(0);
         }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = this.listBox1.SelectedIndex;
+            if (index < 0) return;
+            string filename = this.listBox1.Items[index].ToString(); 
+            Uri uri = new Uri(string.Format("http://{0}:{1}/{2}", Global.serverip, Global.serverport, filename));
+            System.Net.WebClient myWebClient = new System.Net.WebClient();
+            /*
+            myWebClient.DownloadProgressChanged += myWebClient_DownloadProgressChanged;
+            myWebClient.DownloadDataCompleted += myWebClient_DownloadDataCompleted;
+            myWebClient.DownloadDataAsync(uri, this);
+             */
+            try
+            {
+                if (!Directory.Exists("./tmp/"))
+                {
+                    Directory.CreateDirectory("./tmp/");
+                }
+                myWebClient.DownloadFile(uri, "./tmp/" + filename);
+                m3u8Downloader downloader = new m3u8Downloader("./tmp/" + filename, udpsocket);
+                downloader.StartDownload();
+            }
+            catch
+            {
+                MessageBox.Show("下载失败");
+            }
+        }
     }
 }

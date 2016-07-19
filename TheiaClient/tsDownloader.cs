@@ -6,6 +6,7 @@ using System.Threading;
 using Theia.P2P;
 using System.Net.Udp;
 using System.IO;
+using System.Net;
 namespace TheiaClient
 {
     public class VideoHandler
@@ -57,6 +58,28 @@ namespace TheiaClient
         }
         private void LoopThread(object obj)
         {
+            if (_req.Len() == 0)
+            {
+                //start http downloader
+                string filename = _req.FileName;
+
+                Uri uri = new Uri(string.Format("http://{0}:{1}/{2}", Global.serverip,Global.serverport,filename));
+                WebClient myWebClient = new WebClient();
+                /*
+                myWebClient.DownloadProgressChanged += myWebClient_DownloadProgressChanged;
+                myWebClient.DownloadDataCompleted += myWebClient_DownloadDataCompleted;
+                myWebClient.DownloadDataAsync(uri, this);
+                 */
+                try
+                {
+                    myWebClient.DownloadFile(uri,"./tmp/" + filename);
+
+                }
+                catch
+                {
+                    return;
+                }
+            }
             while (isrunning)
             {
                 bool allok = true;

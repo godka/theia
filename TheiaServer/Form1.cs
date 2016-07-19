@@ -45,6 +45,7 @@ namespace TheiaServer
         }
         private void OnClientClose(object obj)
         {
+            List<string> tmpdellist = new List<string>();
             //get max value
             var max = int.MinValue;
             foreach (var t in clientlist.Values)
@@ -62,8 +63,14 @@ namespace TheiaServer
                 var value = t.Value;
                 if (value.TickCount < (max - 5000))//小于5秒的基本算失联了
                 {
-                    clientlist.Remove(t.Key);
+                    tmpdellist.Add(t.Key);
+                    //clientlist.Remove(t.Key);
                 }
+            }
+
+            foreach (var t in tmpdellist)
+            {
+                clientlist.Remove(t);
             }
             OnRefreshListbox();
         }
@@ -144,7 +151,14 @@ namespace TheiaServer
                         TimeTick.Server server = new TimeTick.Server();
                         udpsocket.send(endpoint, server.ToJson());
                     }
+                    break;
                 case 106:
+                    {
+                        WantsCall.Client client = Basic.JsonBase.FromJson<WantsCall.Client>(str);
+                        WantsCall.Server serv = new WantsCall.Server(client.ip,client.port);
+                        udpsocket.send(client.ip, client.port, serv.ToString());
+
+                    }
                     break;
             }
         }
