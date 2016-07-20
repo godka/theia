@@ -23,7 +23,7 @@ namespace TheiaClient
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
             udpsocket.StartRecvThreadListener();
             this.FormClosed += VideoForm_FormClosed; 
-            System.Threading.Timer ClientTimer = new System.Threading.Timer(OnClientSend, this, 0, 1000);
+            //System.Threading.Timer ClientTimer = new System.Threading.Timer(OnClientSend, this, 0, 1000);
         }
         private void OnClientSend(object obj)
         {
@@ -125,6 +125,7 @@ namespace TheiaClient
             {
                 listBox1.Items.Add(t);
             }
+            timer1.Enabled = true;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -177,6 +178,11 @@ namespace TheiaClient
             {
                 MessageBox.Show("下载失败");
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            OnClientSend(this);
         }
     }
 }

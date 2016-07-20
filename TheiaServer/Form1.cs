@@ -21,7 +21,6 @@ namespace TheiaServer
             Control.CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
             clientlist = new Dictionary<string, HeartBreak.Client>();
-            System.Threading.Timer ClientCloseTimer = new System.Threading.Timer(OnClientClose, this, 0, 1000);
             //IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
             //MessageBox.Show(ip.ToString());
         }
@@ -34,45 +33,43 @@ namespace TheiaServer
                     listBox1.Items.Add(t.Key);
                 }
             }
-            foreach (var t in listBox1.Items)
+            for (int i = 0; i < listBox1.Items.Count; i++)
             {
-                //IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse)
+                var t = listBox1.Items[i];
+
                 if (!clientlist.ContainsKey(t.ToString()))
-                {
                     listBox1.Items.Remove(t.ToString());
-                }
             }
         }
         private void OnClientClose(object obj)
         {
-            List<string> tmpdellist = new List<string>();
-            //get max value
-            var max = int.MinValue;
-            foreach (var t in clientlist.Values)
+            try
             {
-                if (t.TickCount > max)
+                List<string> tmpdellist = new List<string>();
+
+                var ticks = Environment.TickCount;
+                //shut down the false positive client
+
+                foreach (var t in clientlist)
                 {
-                    max = t.TickCount;
+                    var value = t.Value;
+                    if (value.TickCount < (ticks - 5000))//小于5秒的基本算失联了
+                    {
+                        tmpdellist.Add(t.Key);
+                        //clientlist.Remove(t.Key);
+                    }
                 }
-            }
 
-            //shut down the false positive client
-
-            foreach (var t in clientlist)
-            {
-                var value = t.Value;
-                if (value.TickCount < (max - 5000))//小于5秒的基本算失联了
+                foreach (var t in tmpdellist)
                 {
-                    tmpdellist.Add(t.Key);
-                    //clientlist.Remove(t.Key);
+                    clientlist.Remove(t);
                 }
+                OnRefreshListbox();
             }
-
-            foreach (var t in tmpdellist)
+            catch(Exception ee)
             {
-                clientlist.Remove(t);
+                MessageBox.Show(ee.Message);
             }
-            OnRefreshListbox();
         }
         void SplitIPstr(string ipstr, out string ip, out int port)
         {
@@ -117,21 +114,25 @@ namespace TheiaServer
             return serv;
         }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
-            {
+        {
             //throw new NotImplementedException();
+            this.listBox2.Items.Add(str);
             switch (Basic.JsonBase.GetMsgType(str))
             {
                 case 101:
                     {
                         //heartbreak;
                         HeartBreak.Client cli = Basic.JsonBase.FromJson<HeartBreak.Client>(str);
-                        if (clientlist.ContainsKey(endpoint.ToString()))
+                        lock (clientlist)
                         {
-                            clientlist[endpoint.ToString()] = cli;
-                        }
-                        else
-                        {
-                            clientlist.Add(endpoint.ToString(), cli);
+                            if (clientlist.ContainsKey(endpoint.ToString()))
+                            {
+                                clientlist[endpoint.ToString()] = cli;
+                            }
+                            else
+                            {
+                                clientlist.Add(endpoint.ToString(), cli);
+                            }
                         }
                         HeartBreak.Server serv = new HeartBreak.Server();
                         udpsocket.send(endpoint, serv.ToString());
@@ -155,7 +156,7 @@ namespace TheiaServer
                 case 106:
                     {
                         WantsCall.Client client = Basic.JsonBase.FromJson<WantsCall.Client>(str);
-                        WantsCall.Server serv = new WantsCall.Server(client.ip,client.port);
+                        WantsCall.Server serv = new WantsCall.Server(client.ip, client.port);
                         udpsocket.send(client.ip, client.port, serv.ToString());
 
                     }
@@ -165,6 +166,7 @@ namespace TheiaServer
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            timer1.Enabled = false;
 
         }
 
@@ -175,17 +177,25 @@ namespace TheiaServer
             udpsocket = new UDPSocket(23583);
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
             udpsocket.StartRecvThreadListener();
+            timer1.Enabled = true;
+            //System.Threading.Timer ClientCloseTimer = new System.Threading.Timer(OnClientClose, this, 0, 1000);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
 
+            timer1.Enabled = false;
             this.button1.Enabled = true;
             this.button2.Enabled = false;
             if (udpsocket != null)
             {
                 udpsocket.DisConnection();
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            OnClientClose(this);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Collections;
+using System.Windows.Forms;
 namespace System.Net.Udp
 {
     /// <summary> 
@@ -262,7 +263,6 @@ namespace System.Net.Udp
         {
             //Thread.Sleep(2000);
             //ASCII 编码 
-            Encoding ASCII = Encoding.Default;
             Thread.Sleep(1); //防止系统资源耗尽 
             while (!m_Done)
             {
@@ -281,7 +281,7 @@ namespace System.Net.Udp
                     }
                     catch
                     {
-                        Console.WriteLine("asdasaasd");
+                        MessageBox.Show("Error in socket");
                         //SOCKETEventArrive(ee.Message.ToString()); 
                     }
                 }
