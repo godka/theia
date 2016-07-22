@@ -21,8 +21,15 @@ namespace TheiaServer
             Control.CheckForIllegalCrossThreadCalls = false;
             InitializeComponent();
             clientlist = new Dictionary<string, HeartBreak.Client>();
+            this.FormClosed += Form1_FormClosed;
             //IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
             //MessageBox.Show(ip.ToString());
+        }
+
+        void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Environment.Exit(0);
+            //throw new NotImplementedException();
         }
         private void OnRefreshListbox()
         {
@@ -116,7 +123,7 @@ namespace TheiaServer
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
             //throw new NotImplementedException();
-            this.listBox2.Items.Add(str);
+            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":"  + endpoint.Port.ToString());
             switch (Basic.JsonBase.GetMsgType(str))
             {
                 case 101:

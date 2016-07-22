@@ -121,7 +121,16 @@ namespace System.Net.Udp
         }
 
 
-        
+        public UDPSocket(string LocalIP,int LocalPort)
+        {
+            m_sendText = string.Empty;
+            m_computers = new ArrayList();
+            m_Done = false;
+            m_flag = false;
+            m_LocalPort = LocalPort;
+            this.SOCKETEventArrive = null;
+            m_Client = new UdpClient(LocalIP, LocalPort);
+        }
         public UDPSocket(int LocalPort = 0)
         {
             m_sendText = string.Empty;
@@ -167,6 +176,8 @@ namespace System.Net.Udp
                     m_Client = new UdpClient(m_LocalPort);
 
                 }
+                //m_Client.Connect(IPAddress.Any, );
+                
                 //SOCKETEventArrive("Initialize succeed by " + m_LocalPort.ToString() + " port");
             }
             catch
@@ -202,10 +213,9 @@ namespace System.Net.Udp
             if (m_Client == null) return;
             try
             {
-                m_Client.Connect(endpoint);
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
-                m_Client.Send(sendBytes, sendBytes.Length);
+                m_Client.Send(sendBytes, sendBytes.Length,endpoint);
             }
             catch
             {
@@ -222,10 +232,11 @@ namespace System.Net.Udp
             if (m_Client == null) return;
             try
             {
-                m_Client.Connect(ip, port);
+                IPEndPoint remoteEP = new IPEndPoint(IPAddress.Parse(ip), port);
+                //m_Client.Connect(ip, port);
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
-                m_Client.Send(sendBytes, sendBytes.Length);
+                m_Client.Send(sendBytes, sendBytes.Length, remoteEP);
             }
             catch
             {
@@ -236,12 +247,23 @@ namespace System.Net.Udp
 
             }
         }
-
+        IPEndPoint remoteEP;
+        void OnReceive(IAsyncResult ar)
+        {
+            byte[] rcvBuffer = m_Client.EndReceive(ar, ref remoteEP);
+            m_Client.BeginReceive(new AsyncCallback(OnReceive), null);
+            string str = Encoding.UTF8.GetString(rcvBuffer);
+            if (SOCKETEventArrive != null)
+                SOCKETEventArrive(remoteEP, str);
+            //byte[] sndBuffer = Encoding.Default.GetBytes(DateTime.Now.ToString());
+            //m_Client.Send(sndBuffer, sndBuffer.Length, remoteEP);
+        }
         /// <summary> 
         /// 侦听线程 
         /// </summary> 
         public void StartRecvThreadListener()
         {
+            //m_Client.BeginReceive(new AsyncCallback(OnReceive), null);
             try
             {
                 // 启动等待连接的线程 
@@ -281,7 +303,7 @@ namespace System.Net.Udp
                     }
                     catch
                     {
-                        MessageBox.Show("Error in socket");
+                        //MessageBox.Show("Error in socket");
                         //SOCKETEventArrive(ee.Message.ToString()); 
                     }
                 }
