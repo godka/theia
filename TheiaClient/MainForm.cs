@@ -119,9 +119,9 @@ namespace TheiaClient
             startDownLoad();
             //thread = new Thread(startDownLoad);
             //thread.Start();
-            this.Hide();
             VideoForm videoform = new VideoForm();
             videoform.Show();
+            Hide();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

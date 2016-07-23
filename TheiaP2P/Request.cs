@@ -23,10 +23,11 @@ namespace Theia.P2P
             public int port;
             public int trunk;
             public string filename;
-            public ServerFile(string _ip,int _port,int _trunk){
+            public ServerFile(string _filename,string _ip,int _port,int _trunk){
                 ip = _ip;
                 port = _port;
                 trunk = _trunk;
+                filename = _filename;
             }
         }
         public class Server : Basic.JsonBase
@@ -39,9 +40,9 @@ namespace Theia.P2P
                 MsgType = 202;//Tracker server向client给文件列表
                 FileList = new List<ServerFile>();
             }
-            public void Add(string _ip, int _port,int _trunk)
+            public void Add(string _filename,string _ip, int _port,int _trunk)
             {
-                FileList.Add(new ServerFile(_ip, _port, _trunk));
+                FileList.Add(new ServerFile(_filename,_ip, _port, _trunk));
             }
             public int Len()
             {

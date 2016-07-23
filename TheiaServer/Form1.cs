@@ -89,7 +89,7 @@ namespace TheiaServer
                 port = int.Parse(t[1]);
             }
         }
-        Request.Server CheckListForRequest(Request.Client cli)
+        Request.Server CheckListForRequest(IPEndPoint endpoint,Request.Client cli)
         {
             List<string> tmplist = new List<string>();
             var filename = cli.RequestFileName;
@@ -97,7 +97,7 @@ namespace TheiaServer
             foreach (var t in clientlist)
             {
                 var val = t.Value;
-                if (val.ContainsFile(filename))
+                if (val.ContainsFile(filename) && !endpoint.ToString().Equals(t.Key))
                 {
                     if(filelen == 0)
                         filelen = val.GetFilelen(filename);
@@ -114,7 +114,7 @@ namespace TheiaServer
             {
                 string ip;int port;
                 SplitIPstr(tmplist[index % tmplist.Count],out ip,out port);
-                serv.Add(ip, port, index);
+                serv.Add(filename,ip, port, index);
                 index++;
                 len += Basic.Common.maxsize;
             }
@@ -123,7 +123,7 @@ namespace TheiaServer
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
             //throw new NotImplementedException();
-            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":"  + endpoint.Port.ToString());
+            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":"  + endpoint.Port.ToString() + " - " + str);
             switch (Basic.JsonBase.GetMsgType(str))
             {
                 case 101:
@@ -150,7 +150,7 @@ namespace TheiaServer
                     {
                         Request.Client cli = Basic.JsonBase.FromJson<Request.Client>(str);
                         string filename = cli.RequestFileName;
-                        var ans = CheckListForRequest(cli);
+                        var ans = CheckListForRequest(endpoint,cli);
                         udpsocket.send(endpoint, ans.ToString());
                     }
                     break;
@@ -163,7 +163,7 @@ namespace TheiaServer
                 case 106:
                     {
                         WantsCall.Client client = Basic.JsonBase.FromJson<WantsCall.Client>(str);
-                        WantsCall.Server serv = new WantsCall.Server(client.ip, client.port);
+                        WantsCall.Server serv = new WantsCall.Server(endpoint.Address.ToString(), endpoint.Port);
                         udpsocket.send(client.ip, client.port, serv.ToString());
 
                     }

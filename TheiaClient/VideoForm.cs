@@ -18,6 +18,14 @@ namespace TheiaClient
         UDPSocket udpsocket = null;
         public VideoForm()
         {
+            if (!Directory.Exists("./tmp"))
+            {
+                Directory.CreateDirectory("./tmp");
+            }
+            if (!Directory.Exists("./swap"))
+            {
+                Directory.CreateDirectory("./swap");
+            }
             InitializeComponent();
             udpsocket = new UDPSocket(0);
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
@@ -49,12 +57,13 @@ namespace TheiaClient
                 case 202:
                     {
                         Theia.P2P.Request.Server server = Basic.JsonBase.FromJson<Request.Server>(str);
-                        VideoHandler handler = new VideoHandler(server, udpsocket);
                         if (!threadlists.ContainsKey(server.FileName))
                         {
+                            VideoHandler handler = new VideoHandler(server, udpsocket);
                             threadlists.Add(server.FileName, handler);
                             handler.Start();
                         }
+                        
                         //server.FileName
                     }
                     break;
@@ -64,8 +73,7 @@ namespace TheiaClient
                         Global.ServTick = serv.Tick - Environment.TickCount;
                     }
                     break;
-
-                //for client
+                    
                 case 103:
                     {
                         FileTrans.Client cli = Basic.JsonBase.FromJson<FileTrans.Client>(str);
@@ -85,6 +93,7 @@ namespace TheiaClient
                     break;
                 case 104:
                     {
+                        //for client
                         FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
                         File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data);
                     }

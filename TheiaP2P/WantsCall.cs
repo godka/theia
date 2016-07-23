@@ -15,7 +15,7 @@ namespace Theia.P2P
             {
                 MsgType = 106;
                 ip = _ip;
-                _port = port;
+                port = _port;
             }
         }
         public class Server : Basic.JsonBase
@@ -26,7 +26,7 @@ namespace Theia.P2P
             {
                 MsgType = 206;
                 ip = _ip;
-                _port = port;
+                port = _port;
             }
         }
     }
