@@ -94,7 +94,7 @@ namespace TheiaClient
                     CombineFiles(_req.FileName);
                     break;
                 }
-                Thread.Sleep(10000);
+                Thread.Sleep(5000);
             }
         }
     }
