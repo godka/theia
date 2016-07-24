@@ -11,7 +11,7 @@ namespace Theia.P2P
     {
         public static class Common
         {
-            public static int maxsize = 1024 * 500;//一个块最大500k
+            public static int maxsize = 1024;//一个块最大500k
         }
         public class JsonBase
         {

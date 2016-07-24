@@ -46,6 +46,7 @@ namespace TheiaClient
         }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
+            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
             switch (Basic.JsonBase.GetMsgType(str))
             {
                 //for server
@@ -80,13 +81,9 @@ namespace TheiaClient
                         using (FileStream fs = new FileStream("./tmp/" + cli.filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             fs.Seek(cli.trunk * Basic.Common.maxsize, SeekOrigin.Begin);
-                            byte[] tmp2 = new byte[Basic.Common.maxsize];
-                            int len = fs.Read(tmp2, 0, Basic.Common.maxsize);
-
-                            byte[] tmp = new byte[len];
-                            Array.Copy(tmp2, tmp, len);
-
-                            FileTrans.Server serv = new FileTrans.Server(cli.filename, cli.trunk, tmp);
+                            byte[] tmp = new byte[Basic.Common.maxsize];
+                            int len = fs.Read(tmp, 0, Basic.Common.maxsize);
+                            FileTrans.Server serv = new FileTrans.Server(cli.filename, cli.trunk, tmp,len);
                             udpsocket.send(endpoint, serv.ToString());
                         }
                     }
@@ -95,7 +92,12 @@ namespace TheiaClient
                     {
                         //for client
                         FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
-                        File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data);
+                        using (FileStream fs = new FileStream("./swap/" + serv.filename + "." + serv.trunk, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+                        {
+                            fs.Write(serv.data, 0, serv.len);
+                        }
+                        
+                        //File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data,serv.len);
                     }
                     break;
                 //这个基本上属于走错片场了
@@ -139,8 +141,6 @@ namespace TheiaClient
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.hlsplayer1.FileName = "test.ts";
-            this.hlsplayer1.Play(index);
         }
 
         private void systemToolStripMenuItem_Click(object sender, EventArgs e)

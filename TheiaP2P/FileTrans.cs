@@ -24,13 +24,15 @@ namespace Theia.P2P
         {
             public string filename;
             public byte[] data;
+            public int len;
             public int trunk;
-            public Server(string _filename,int id,byte[] _data)
+            public Server(string _filename,int id,byte[] _data,int _len)
             {
                 MsgType = 104;
                 filename = _filename;
                 data = _data;
                 trunk = id;
+                len = _len;
             }
         }
     }

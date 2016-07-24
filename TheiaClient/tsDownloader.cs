@@ -29,14 +29,6 @@ namespace TheiaClient
         }
         private bool CheckFile(string filename)
         {
-            if (!Directory.Exists("./swap"))
-            {
-                Directory.CreateDirectory("./swap");
-            }
-            else
-            {
-                return false;
-            }
             if (File.Exists("./swap/" + filename))
             {
                 return true;

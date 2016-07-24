@@ -37,7 +37,7 @@
             this.systemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.hlsplayer1 = new TheiaClient.videoplayer();
+            this.listBox2 = new System.Windows.Forms.ListBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -116,24 +116,21 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // hlsplayer1
+            // listBox2
             // 
-            this.hlsplayer1.BackColor = System.Drawing.Color.Black;
-            this.hlsplayer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hlsplayer1.FileName = null;
-            this.hlsplayer1.Location = new System.Drawing.Point(0, 25);
-            this.hlsplayer1.Name = "hlsplayer1";
-            this.hlsplayer1.Size = new System.Drawing.Size(1102, 511);
-            this.hlsplayer1.TabIndex = 2;
-            this.hlsplayer1.TotalTime = 0;
-            this.hlsplayer1.VideoTime = 0;
+            this.listBox2.FormattingEnabled = true;
+            this.listBox2.ItemHeight = 12;
+            this.listBox2.Location = new System.Drawing.Point(12, 38);
+            this.listBox2.Name = "listBox2";
+            this.listBox2.Size = new System.Drawing.Size(1078, 484);
+            this.listBox2.TabIndex = 4;
             // 
             // VideoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1102, 828);
-            this.Controls.Add(this.hlsplayer1);
+            this.Controls.Add(this.listBox2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -158,8 +155,8 @@
         private System.Windows.Forms.ToolStripMenuItem systemToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ListBox listBox1;
-        private videoplayer hlsplayer1;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ListBox listBox2;
 
     }
 }
