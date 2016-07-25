@@ -99,12 +99,14 @@ namespace TheiaServer
                 var val = t.Value;
                 if (val.ContainsFile(filename) && !endpoint.ToString().Equals(t.Key))
                 {
-                    if(filelen == 0)
+                    if (filelen == 0)
                         filelen = val.GetFilelen(filename);
                     tmplist.Add(t.Key);
                 }
             }
-            
+
+            //var filename = cli.RequestFileName;
+            //long filelen = 0;
             long len = 0;
             int index = 0;
             Request.Server serv = new Request.Server();
@@ -112,12 +114,25 @@ namespace TheiaServer
             serv.Filelen = filelen;
             while (len < filelen)
             {
-                string ip;int port;
-                SplitIPstr(tmplist[index % tmplist.Count],out ip,out port);
-                serv.Add(filename,ip, port, index);
+                string ip; int port;
+                SplitIPstr(tmplist[index % tmplist.Count], out ip, out port);
+                serv.Add(filename, ip, port, index);
                 index++;
                 len += Basic.Common.maxsize;
             }
+            //foreach (var t in clientlist)
+            //{
+            //    var val = t.Value;
+            //    if (val.ContainsFile(filename) && !endpoint.ToString().Equals(t.Key))
+            //    {
+            //        string ip; int port;
+            //        SplitIPstr(t.Key, out ip, out port);
+            //        serv.Add(filename, ip, port, 0);
+            //         if(filelen == 0)
+            //            filelen = val.GetFilelen(filename);
+            //         break;
+            //    }
+            //}
             return serv;
         }
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)

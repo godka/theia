@@ -14,6 +14,12 @@ namespace TheiaClient
 {
     public partial class VideoForm : Form
     {
+        public class workclass
+        {
+            public System.Net.IPEndPoint endpoint;
+            public string str;
+        }
+        List<workclass> worklist = new List<workclass>();
         Dictionary<string, VideoHandler> threadlists = new Dictionary<string, VideoHandler>();
         UDPSocket udpsocket = null;
         public VideoForm()
@@ -30,7 +36,8 @@ namespace TheiaClient
             udpsocket = new UDPSocket(0);
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
             udpsocket.StartRecvThreadListener();
-            this.FormClosed += VideoForm_FormClosed; 
+            this.FormClosed += VideoForm_FormClosed;
+            ThreadPool.QueueUserWorkItem(this.WorkThread);
             //System.Threading.Timer ClientTimer = new System.Threading.Timer(OnClientSend, this, 0, 1000);
         }
         private void OnClientSend(object obj)
@@ -44,75 +51,102 @@ namespace TheiaClient
             HeartBreak.Client cli = new HeartBreak.Client(ticks);
             udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
         }
+
+        private void WorkThread(object obj)
+        {
+            for (; ; )
+            {
+                if(worklist.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    continue;
+                }
+                var tmps = worklist[0];
+                var endpoint = tmps.endpoint;
+                var str = tmps.str;
+                this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                switch (Basic.JsonBase.GetMsgType(str))
+                {
+                    //for server
+                    case 201:
+                        {
+                            //nop
+                        }
+                        break;
+                    case 202:
+                        {
+                            Theia.P2P.Request.Server server = Basic.JsonBase.FromJson<Request.Server>(str);
+                            if (!threadlists.ContainsKey(server.FileName))
+                            {
+                                VideoHandler handler = new VideoHandler(server, udpsocket);
+                                threadlists.Add(server.FileName, handler);
+                                handler.Start();
+                            }
+
+                            //server.FileName
+                        }
+                        break;
+                    case 205:
+                        {
+                            TimeTick.Server serv = Basic.JsonBase.FromJson<TimeTick.Server>(str);
+                            Global.ServTick = serv.Tick - Environment.TickCount;
+                        }
+                        break;
+
+                    case 103:
+                        {
+                            FileTrans.Client cli = Basic.JsonBase.FromJson<FileTrans.Client>(str);
+                            using (FileStream fs = new FileStream("./tmp/" + cli.filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            {
+                                fs.Seek(cli.trunk * Basic.Common.maxsize, SeekOrigin.Begin);
+                                //long len = fs.Length;
+                                byte[] tmp = new byte[Basic.Common.maxsize];
+                                var len = fs.Read(tmp, 0, Basic.Common.maxsize);
+                                FileTrans.Server serv = new FileTrans.Server(cli.filename, cli.trunk, tmp, (int)len);
+                                udpsocket.send(endpoint, serv.ToString());
+                            }
+                        }
+                        break;
+                    case 104:
+                        {
+                            //for client
+                            FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
+                            if (threadlists.ContainsKey(serv.filename))
+                            {
+                                threadlists[serv.filename].Add(serv.trunk,serv.data,serv.len);
+                            }
+                            //using (FileStream fs = new FileStream("./swap/" + serv.filename + "." + serv.trunk, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
+                            //{
+                            //    fs.Write(serv.data, 0, serv.len);
+                            //}
+
+                            //File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data,serv.len);
+                        }
+                        break;
+                    //这个基本上属于走错片场了
+                    case 105:
+                        {
+                            MessageBox.Show("Error Message!");
+                        }
+                        break;
+                    case 206:
+                        {
+                            WantsCall.Server serv = Basic.JsonBase.FromJson<WantsCall.Server>(str);
+                            udpsocket.send(serv.ip, serv.port, serv.ToString());
+                        }
+                        break;
+                }
+                
+            }
+        }
+
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
-            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
-            switch (Basic.JsonBase.GetMsgType(str))
-            {
-                //for server
-                case 201:
-                    {
-                        //nop
-                    }
-                    break;
-                case 202:
-                    {
-                        Theia.P2P.Request.Server server = Basic.JsonBase.FromJson<Request.Server>(str);
-                        if (!threadlists.ContainsKey(server.FileName))
-                        {
-                            VideoHandler handler = new VideoHandler(server, udpsocket);
-                            threadlists.Add(server.FileName, handler);
-                            handler.Start();
-                        }
-                        
-                        //server.FileName
-                    }
-                    break;
-                case 205:
-                    {
-                        TimeTick.Server serv = Basic.JsonBase.FromJson<TimeTick.Server>(str);
-                        Global.ServTick = serv.Tick - Environment.TickCount;
-                    }
-                    break;
-                    
-                case 103:
-                    {
-                        FileTrans.Client cli = Basic.JsonBase.FromJson<FileTrans.Client>(str);
-                        using (FileStream fs = new FileStream("./tmp/" + cli.filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        {
-                            fs.Seek(cli.trunk * Basic.Common.maxsize, SeekOrigin.Begin);
-                            byte[] tmp = new byte[Basic.Common.maxsize];
-                            int len = fs.Read(tmp, 0, Basic.Common.maxsize);
-                            FileTrans.Server serv = new FileTrans.Server(cli.filename, cli.trunk, tmp,len);
-                            udpsocket.send(endpoint, serv.ToString());
-                        }
-                    }
-                    break;
-                case 104:
-                    {
-                        //for client
-                        FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
-                        using (FileStream fs = new FileStream("./swap/" + serv.filename + "." + serv.trunk, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
-                        {
-                            fs.Write(serv.data, 0, serv.len);
-                        }
-                        
-                        //File.WriteAllBytes("./swap/" + serv.filename + "." + serv.trunk, serv.data,serv.len);
-                    }
-                    break;
-                //这个基本上属于走错片场了
-                case 105:
-                    {
-                        MessageBox.Show("Error Message!");
-                    }
-                    break;
-                case 206:
-                    {
-                        WantsCall.Server serv = Basic.JsonBase.FromJson<WantsCall.Server>(str);
-                        udpsocket.send(serv.ip,serv.port,serv.ToString());
-                    }
-                    break;
-            }
+            //WorkThread(ref endpoint, str);
+            workclass t = new workclass();
+            t.endpoint = endpoint;
+            t.str = str;
+            worklist.Add(t);
             //MessageBox.Show(str);
             //throw new NotImplementedException();
         }

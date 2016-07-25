@@ -11,6 +11,7 @@ namespace TheiaClient
 {
     public class VideoHandler
     {
+        List<byte[]> bytelist = new List<byte[]>();
         Request.Server _req;
         Thread CheckThread;
         bool isrunning = false;
@@ -41,12 +42,21 @@ namespace TheiaClient
         private void CombineFiles(string filename)
         {
             List<byte> tmpwrite = new List<byte>();
-            foreach (var t in _req.FileList)
+            foreach (var t in bytelist)
             {
-                var bytes = File.ReadAllBytes("./swap/" + t.filename + "." + t.trunk.ToString());
-                tmpwrite.AddRange(bytes);
+                if(t != null)
+                    tmpwrite.AddRange(t);
             }
-            File.WriteAllBytes(filename, tmpwrite.ToArray());
+            File.WriteAllBytes("./tmp/" + filename, tmpwrite.ToArray());
+        }
+        public void Add(int index,byte[] data,int size)
+        {
+            if (bytelist[index] == null)
+            {
+                byte[] tmp = new byte[size];
+                Array.Copy(data,tmp,size);
+                bytelist[index] = tmp;
+            }
         }
         private void LoopThread(object obj)
         {
@@ -64,7 +74,8 @@ namespace TheiaClient
                  */
                 try
                 {
-                    myWebClient.DownloadFile(uri,"./tmp/" + filename);
+                    myWebClient.DownloadFile(uri, "./tmp/" + filename);
+                    return;
 
                 }
                 catch
@@ -72,17 +83,21 @@ namespace TheiaClient
                     return;
                 }
             }
+            foreach (var t in _req.FileList)
+            {
+                bytelist.Add(null);
+            }
             while (isrunning)
             {
                 bool allok = true;
                 foreach (var t in _req.FileList)
                 {
-                    if (!CheckFile(t.filename + "." + t.trunk.ToString()))
+                    if (bytelist[t.trunk] == null)
                     {
                         if (_udpsocket != null)
                         {
                             allok = false;
-                            FileTrans.Client cli = new FileTrans.Client(t.filename,t.trunk);
+                            FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
                             _udpsocket.send(t.ip, t.port, cli.ToJson());
                             WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
                             _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
