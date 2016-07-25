@@ -67,7 +67,8 @@ namespace System.Net.Udp
         /// <summary> 
         /// 定义委托 
         /// </summary> 
-        public delegate void SOCKETDelegateArrive(IPEndPoint endpoint,string str);
+        public delegate void SOCKETDelegateArrive(IPEndPoint endpoint, string str);
+        public delegate void SOCKETDelegateSend(IPEndPoint endpoint, string str);
 
 
 
@@ -75,6 +76,7 @@ namespace System.Net.Udp
         /// 定义一个消息接收事件 
         /// </summary> 
         public event SOCKETDelegateArrive SOCKETEventArrive;
+        public event SOCKETDelegateSend SOCKETEventSend;
 
 
 
@@ -215,7 +217,9 @@ namespace System.Net.Udp
             {
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
-                m_Client.Send(sendBytes, sendBytes.Length,endpoint);
+                m_Client.Send(sendBytes, sendBytes.Length, endpoint);
+                if (SOCKETEventSend != null)
+                    SOCKETEventSend(remoteEP, str);
             }
             catch
             {
@@ -237,6 +241,8 @@ namespace System.Net.Udp
                 // 连接后传送一个消息给ip主机 
                 Byte[] sendBytes = Encoding.UTF8.GetBytes(str);
                 m_Client.Send(sendBytes, sendBytes.Length, remoteEP);
+                if (SOCKETEventSend != null)
+                    SOCKETEventSend(remoteEP, str);
             }
             catch
             {

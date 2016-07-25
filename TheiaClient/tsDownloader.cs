@@ -13,8 +13,6 @@ namespace TheiaClient
     {
         List<byte[]> bytelist = new List<byte[]>();
         Request.Server _req;
-        Thread CheckThread;
-        bool isrunning = false;
         UDPSocket _udpsocket;
         public VideoHandler(Request.Server req, UDPSocket udpsocket)
         {
@@ -22,56 +20,15 @@ namespace TheiaClient
             _req = req;
         }
 
-        public void Start()
-        {
-            isrunning = true;
-            CheckThread = new Thread(new ParameterizedThreadStart(LoopThread));
-            CheckThread.Start();
-        }
-        private bool CheckFile(string filename)
-        {
-            if (File.Exists("./swap/" + filename))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private void CombineFiles(string filename)
-        {
-            List<byte> tmpwrite = new List<byte>();
-            foreach (var t in bytelist)
-            {
-                if(t != null)
-                    tmpwrite.AddRange(t);
-            }
-            File.WriteAllBytes("./tmp/" + filename, tmpwrite.ToArray());
-        }
-        public void Add(int index,byte[] data,int size)
-        {
-            if (bytelist[index] == null)
-            {
-                byte[] tmp = new byte[size];
-                Array.Copy(data,tmp,size);
-                bytelist[index] = tmp;
-            }
-        }
-        private void LoopThread(object obj)
+        private void ThreadMethod(Object obj)
         {
             if (_req.Len() == 0)
             {
                 //start http downloader
                 string filename = _req.FileName;
 
-                Uri uri = new Uri(string.Format("http://{0}:{1}/{2}", Global.serverip,Global.serverport,filename));
+                Uri uri = new Uri(string.Format("http://{0}:{1}/{2}", Global.serverip, Global.serverport, filename));
                 WebClient myWebClient = new WebClient();
-                /*
-                myWebClient.DownloadProgressChanged += myWebClient_DownloadProgressChanged;
-                myWebClient.DownloadDataCompleted += myWebClient_DownloadDataCompleted;
-                myWebClient.DownloadDataAsync(uri, this);
-                 */
                 try
                 {
                     myWebClient.DownloadFile(uri, "./tmp/" + filename);
@@ -85,31 +42,79 @@ namespace TheiaClient
             }
             foreach (var t in _req.FileList)
             {
-                bytelist.Add(null);
-            }
-            while (isrunning)
-            {
-                bool allok = true;
-                foreach (var t in _req.FileList)
+                bytelist.Add(null); 
+                if (_udpsocket != null)
                 {
-                    if (bytelist[t.trunk] == null)
+                    FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
+                    _udpsocket.send(t.ip, t.port, cli.ToJson());
+                    if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
                     {
-                        if (_udpsocket != null)
+                        WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
+                        _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
+                    }
+                }
+            }
+        }
+
+        public void Start()
+        {
+            ThreadPool.QueueUserWorkItem(ThreadMethod);
+            return;
+        }
+
+        private bool CheckFile(string filename)
+        {
+            if (File.Exists("./swap/" + filename))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void CombineFiles(string filename)
+        {
+            List<byte> tmpwrite = new List<byte>();
+            foreach (var t in bytelist)
+            {
+                if(t != null)
+                    tmpwrite.AddRange(t);
+            }
+            File.WriteAllBytes("./tmp/" + filename, tmpwrite.ToArray());
+        }
+
+        public void Add(int index,byte[] data,int size)
+        {
+            if (bytelist[index] == null)
+            {
+                byte[] tmp = new byte[size];
+                Array.Copy(data,tmp,size);
+                bytelist[index] = tmp;
+            }
+
+            bool allok = true;
+            foreach (var t in _req.FileList)
+            {
+                if (bytelist[t.trunk] == null)
+                {
+                    if (_udpsocket != null)
+                    {
+                        allok = false;
+                        FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
+                        _udpsocket.send(t.ip, t.port, cli.ToJson());
+                        if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
                         {
-                            allok = false;
-                            FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
-                            _udpsocket.send(t.ip, t.port, cli.ToJson());
                             WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
                             _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
                         }
                     }
                 }
-                if (allok)
-                {
-                    CombineFiles(_req.FileName);
-                    break;
-                }
-                Thread.Sleep(5000);
+            }
+            if (allok)
+            {
+                CombineFiles(_req.FileName);
             }
         }
     }
@@ -136,19 +141,7 @@ namespace TheiaClient
                     
                 }
             }
-            //isrunning = true;
-            //CheckThread = new Thread(new ParameterizedThreadStart(LoopThread));
-            //CheckThread.Start();
         }
-        /*
-        private void LoopThread(object obj)
-        {
-            while (isrunning)
-            {
-                Thread.Sleep(1000);
-            }
-        }
-         */
     }
     public class tsDownloader
     {

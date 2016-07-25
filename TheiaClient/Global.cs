@@ -14,5 +14,7 @@ namespace TheiaClient
         public static string trackerip;
         public static int trackerport;
         public static int ServTick = int.MaxValue;
+
+        public static HashSet<string> iphashset = new HashSet<string>();
     }
 }

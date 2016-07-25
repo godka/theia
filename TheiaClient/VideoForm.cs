@@ -35,10 +35,18 @@ namespace TheiaClient
             InitializeComponent();
             udpsocket = new UDPSocket(0);
             udpsocket.SOCKETEventArrive += udpsocket_SOCKETEventArrive;
+            udpsocket.SOCKETEventSend += udpsocket_SOCKETEventSend;
             udpsocket.StartRecvThreadListener();
             this.FormClosed += VideoForm_FormClosed;
             ThreadPool.QueueUserWorkItem(this.WorkThread);
             //System.Threading.Timer ClientTimer = new System.Threading.Timer(OnClientSend, this, 0, 1000);
+        }
+
+        void udpsocket_SOCKETEventSend(System.Net.IPEndPoint endpoint, string str)
+        {
+
+            this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+            //throw new NotImplementedException();
         }
         private void OnClientSend(object obj)
         {
@@ -64,6 +72,10 @@ namespace TheiaClient
                 var tmps = worklist[0];
                 var endpoint = tmps.endpoint;
                 var str = tmps.str;
+                if (str == "")
+                {
+                    MessageBox.Show("1");
+                }
                 this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 switch (Basic.JsonBase.GetMsgType(str))
                 {
@@ -133,9 +145,13 @@ namespace TheiaClient
                         {
                             WantsCall.Server serv = Basic.JsonBase.FromJson<WantsCall.Server>(str);
                             udpsocket.send(serv.ip, serv.port, serv.ToString());
+                            Global.iphashset.Add(serv.ip + ":" + serv.port.ToString());
                         }
                         break;
+                    default:
+                        break;
                 }
+                worklist.RemoveAt(0);
                 
             }
         }
