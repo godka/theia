@@ -130,6 +130,10 @@ namespace TheiaClient
             var reader = new m3u8Reader(_m3u8file);
             m3u8list = reader.Parse();
         }
+        private void LoopWhileDone(string filename)
+        {
+
+        }
         public void StartDownload()
         {
             foreach (var t in m3u8list.Detail)
@@ -138,7 +142,7 @@ namespace TheiaClient
                 {
                     Request.Client cli = new Request.Client(t.file);
                     _udpsocket.send(Global.trackerip, Global.trackerport, cli.ToString());
-                    
+                    LoopWhileDone(t.file);
                 }
             }
         }

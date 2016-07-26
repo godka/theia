@@ -141,11 +141,24 @@ namespace TheiaClient
                             MessageBox.Show("Error Message!");
                         }
                         break;
+                    case 106:
+                        {
+                            WantsCall.Client cli = Basic.JsonBase.FromJson<WantsCall.Client>(str);
+                            if (!Global.iphashset.Contains(cli.ip + ":" + cli.port.ToString()))
+                            {
+                                Global.iphashset.Add(cli.ip + ":" + cli.port.ToString());
+                            }
+                        }
+                        break;
                     case 206:
                         {
                             WantsCall.Server serv = Basic.JsonBase.FromJson<WantsCall.Server>(str);
-                            udpsocket.send(serv.ip, serv.port, serv.ToString());
-                            Global.iphashset.Add(serv.ip + ":" + serv.port.ToString());
+                            if (!Global.iphashset.Contains(serv.ip + ":" + serv.port.ToString()))
+                            {
+                                WantsCall.Client cli = new WantsCall.Client(endpoint.Address.ToString(), endpoint.Port);
+                                udpsocket.send(serv.ip, serv.port, cli.ToString());
+                                Global.iphashset.Add(serv.ip + ":" + serv.port.ToString());
+                            }
                         }
                         break;
                     default:
