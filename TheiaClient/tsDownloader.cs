@@ -14,6 +14,18 @@ namespace TheiaClient
         List<byte[]> bytelist = new List<byte[]>();
         Request.Server _req;
         UDPSocket _udpsocket;
+        bool IsOK = false;
+        public bool DownloadComplete()
+        {
+            return IsOK;
+        }
+        public string GetFileName()
+        {
+            if (_req != null)
+                return _req.FileName;
+            else
+                return string.Empty;
+        }
         public VideoHandler(Request.Server req, UDPSocket udpsocket)
         {
             _udpsocket = udpsocket;
@@ -83,6 +95,7 @@ namespace TheiaClient
                     tmpwrite.AddRange(t);
             }
             File.WriteAllBytes("./tmp/" + filename, tmpwrite.ToArray());
+            IsOK = true;
         }
 
         public void Add(int index,byte[] data,int size)
@@ -102,13 +115,14 @@ namespace TheiaClient
                     if (_udpsocket != null)
                     {
                         allok = false;
-                        FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
-                        _udpsocket.send(t.ip, t.port, cli.ToJson());
-                        if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
-                        {
-                            WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
-                            _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
-                        }
+                        break;
+                        //FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
+                        //_udpsocket.send(t.ip, t.port, cli.ToJson());
+                        //if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
+                        //{
+                        //    WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
+                        //    _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
+                        //}
                     }
                 }
             }
@@ -118,20 +132,70 @@ namespace TheiaClient
             }
         }
     }
+    public class m3u8DownloadContainer
+    {
+        Dictionary<string, m3u8Downloader> DownLoadList = new Dictionary<string, m3u8Downloader>();
+        public void AddHandler(VideoHandler videohandler)
+        {
+            foreach (var t in DownLoadList)
+            {
+                if (t.Value.AddHandler(videohandler))
+                {
+                    break;
+                }
+            }
+        }
+        public void AddDownloader(m3u8Downloader downloader)
+        {
+            if (!DownLoadList.ContainsKey(downloader._m3u8file))
+            {
+                DownLoadList.Add(downloader._m3u8file, downloader);
+                downloader.StartDownload();
+            }
+        }
+    }
     public class m3u8Downloader
     {
-        string _m3u8file;
+        private VideoHandler _videohandler = null;
+        public string _m3u8file;
         m3u8List m3u8list;
         UDPSocket _udpsocket;
+        string _request_file;
         public m3u8Downloader(string m3u8file, UDPSocket udpsocket)
         {
             _udpsocket = udpsocket;
+            
             _m3u8file = m3u8file;
             var reader = new m3u8Reader(_m3u8file);
             m3u8list = reader.Parse();
         }
         private void LoopWhileDone(string filename)
         {
+            for (; ; )
+            {
+                if (_videohandler != null)
+                {
+                    if (_videohandler.DownloadComplete())
+                        break;
+                    else
+                        Thread.Sleep(1);
+                }
+                else
+                {
+                    Thread.Sleep(1);
+                }
+            }
+        }
+        public bool AddHandler(VideoHandler _handler)
+        {
+            if (_handler != null)
+                return false;
+            if (_request_file.Equals(_handler.GetFileName()))
+            {
+                _videohandler = _handler;
+                return true;
+            }
+            return false;
 
         }
         public void StartDownload()
@@ -140,7 +204,9 @@ namespace TheiaClient
             {
                 if (_udpsocket != null)
                 {
+                    _videohandler = null;
                     Request.Client cli = new Request.Client(t.file);
+                    _request_file = t.file;
                     _udpsocket.send(Global.trackerip, Global.trackerport, cli.ToString());
                     LoopWhileDone(t.file);
                 }
