@@ -145,6 +145,29 @@ namespace TheiaClient
                 }
             }
         }
+        public void AddFileTrans(FileTrans.Server serv)
+        {
+            foreach (var t in DownLoadList)
+            {
+                var handler = GetHandlerByName(serv.filename);
+                if (handler != null)
+                {
+                    handler.Add(serv.trunk, serv.data, serv.len);
+                    //break;
+                }
+            }
+        }
+        private VideoHandler GetHandlerByName(string name)
+        {
+            foreach (var t in DownLoadList)
+            {
+                if (t.Value.GetHandler().GetFileName().Equals(name))
+                {
+                    return t.Value.GetHandler();
+                }
+            }
+            return null;
+        }
         public void AddDownloader(m3u8Downloader downloader)
         {
             if (!DownLoadList.ContainsKey(downloader._m3u8file))
@@ -169,6 +192,10 @@ namespace TheiaClient
             var reader = new m3u8Reader(_m3u8file);
             m3u8list = reader.Parse();
         }
+        public VideoHandler GetHandler()
+        {
+            return _videohandler;
+        }
         private void LoopWhileDone(string filename)
         {
             for (; ; )
@@ -186,6 +213,7 @@ namespace TheiaClient
                 }
             }
         }
+
         public bool AddHandler(VideoHandler _handler)
         {
             if (_handler != null)
@@ -198,7 +226,8 @@ namespace TheiaClient
             return false;
 
         }
-        public void StartDownload()
+
+        private void ThreadMethod(object obj)
         {
             foreach (var t in m3u8list.Detail)
             {
@@ -211,6 +240,12 @@ namespace TheiaClient
                     LoopWhileDone(t.file);
                 }
             }
+        }
+
+        public void StartDownload()
+        {
+            ThreadPool.QueueUserWorkItem(ThreadMethod);
+
         }
     }
     public class tsDownloader

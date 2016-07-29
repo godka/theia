@@ -20,7 +20,7 @@ namespace TheiaClient
             public string str;
         }
         List<workclass> worklist = new List<workclass>();
-        Dictionary<string, VideoHandler> threadlists = new Dictionary<string, VideoHandler>();
+        m3u8DownloadContainer container = new m3u8DownloadContainer();
         UDPSocket udpsocket = null;
         public VideoForm()
         {
@@ -45,7 +45,9 @@ namespace TheiaClient
         void udpsocket_SOCKETEventSend(System.Net.IPEndPoint endpoint, string str)
         {
 
-            this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+            this.textBox1.Text += "Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
+            SimpleDebug("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+            //this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
             //throw new NotImplementedException();
         }
         private void OnClientSend(object obj)
@@ -59,7 +61,12 @@ namespace TheiaClient
             HeartBreak.Client cli = new HeartBreak.Client(ticks);
             udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
         }
-
+        private void SimpleDebug(string str)
+        {
+            StreamWriter sw = new StreamWriter("./debug.txt", true);
+            sw.WriteLine(DateTime.Now.ToString() + "-" + str);
+            sw.Close();
+        }
         private void WorkThread(object obj)
         {
             for (; ; )
@@ -76,7 +83,9 @@ namespace TheiaClient
                 {
                     MessageBox.Show("1");
                 }
-                this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                this.textBox1.Text += "From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
+                SimpleDebug("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                //this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 switch (Basic.JsonBase.GetMsgType(str))
                 {
                     //for server
@@ -88,12 +97,9 @@ namespace TheiaClient
                     case 202:
                         {
                             Theia.P2P.Request.Server server = Basic.JsonBase.FromJson<Request.Server>(str);
-                            if (!threadlists.ContainsKey(server.FileName))
-                            {
-                                VideoHandler handler = new VideoHandler(server, udpsocket);
-                                threadlists.Add(server.FileName, handler);
-                                handler.Start();
-                            }
+                            VideoHandler handler = new VideoHandler(server, udpsocket);
+                            container.AddHandler(handler);
+                            //threadlists.Add(server.FileName, handler);
 
                             //server.FileName
                         }
@@ -123,10 +129,11 @@ namespace TheiaClient
                         {
                             //for client
                             FileTrans.Server serv = Basic.JsonBase.FromJson<FileTrans.Server>(str);
-                            if (threadlists.ContainsKey(serv.filename))
-                            {
-                                threadlists[serv.filename].Add(serv.trunk,serv.data,serv.len);
-                            }
+                            container.AddFileTrans(serv);
+                            //if (threadlists.ContainsKey(serv.filename))
+                            //{
+                            //    threadlists[serv.filename].Add(serv.trunk,serv.data,serv.len);
+                            //}
                             //using (FileStream fs = new FileStream("./swap/" + serv.filename + "." + serv.trunk, FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite))
                             //{
                             //    fs.Write(serv.data, 0, serv.len);
@@ -244,7 +251,8 @@ namespace TheiaClient
                 }
                 myWebClient.DownloadFile(uri, "./tmp/" + filename);
                 m3u8Downloader downloader = new m3u8Downloader("./tmp/" + filename, udpsocket);
-                downloader.StartDownload();
+                container.AddDownloader(downloader);
+                //downloader.StartDownload();
             }
             catch
             {
