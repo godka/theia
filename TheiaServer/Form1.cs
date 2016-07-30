@@ -60,7 +60,7 @@ namespace TheiaServer
                 foreach (var t in clientlist)
                 {
                     var value = t.Value;
-                    if (value.TickCount < (ticks - 5000))//小于5秒的基本算失联了
+                    if (value.TickCount < (ticks - 10000))//小于5秒的基本算失联了
                     {
                         tmpdellist.Add(t.Key);
                         //clientlist.Remove(t.Key);
@@ -94,17 +94,19 @@ namespace TheiaServer
             List<string> tmplist = new List<string>();
             var filename = cli.RequestFileName;
             long filelen = 0;
-            foreach (var t in clientlist)
+            lock (clientlist)
             {
-                var val = t.Value;
-                if (val.ContainsFile(filename) && !endpoint.ToString().Equals(t.Key))
+                foreach (var t in clientlist)
                 {
-                    if (filelen == 0)
-                        filelen = val.GetFilelen(filename);
-                    tmplist.Add(t.Key);
+                    var val = t.Value;
+                    if (val.ContainsFile(filename) && !endpoint.ToString().Equals(t.Key))
+                    {
+                        if (filelen == 0)
+                            filelen = val.GetFilelen(filename);
+                        tmplist.Add(t.Key);
+                    }
                 }
             }
-
             //var filename = cli.RequestFileName;
             //long filelen = 0;
             long len = 0;

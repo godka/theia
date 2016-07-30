@@ -307,9 +307,9 @@ namespace System.Net.Udp
                         if (SOCKETEventArrive != null)
                             SOCKETEventArrive(endpoint,str);
                     }
-                    catch
+                    catch(Exception ee)
                     {
-                        //MessageBox.Show("Error in socket");
+                        //MessageBox.Show(ee.Message.ToString());
                         //SOCKETEventArrive(ee.Message.ToString()); 
                     }
                 }

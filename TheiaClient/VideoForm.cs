@@ -44,10 +44,14 @@ namespace TheiaClient
 
         void udpsocket_SOCKETEventSend(System.Net.IPEndPoint endpoint, string str)
         {
-
-            this.textBox1.Text += "Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
-            SimpleDebug("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
-            //this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+            var msgtype = Basic.JsonBase.GetMsgType(str);
+            if (msgtype != 101)
+            {
+                listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                // this.textBox1.Text += "Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
+                SimpleDebug("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                //this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+            }
             //throw new NotImplementedException();
         }
         private void OnClientSend(object obj)
@@ -63,9 +67,9 @@ namespace TheiaClient
         }
         private void SimpleDebug(string str)
         {
-            StreamWriter sw = new StreamWriter("./debug.txt", true);
-            sw.WriteLine(DateTime.Now.ToString() + "-" + str);
-            sw.Close();
+            //StreamWriter sw = new StreamWriter("./debug.txt", true);
+            //sw.WriteLine(DateTime.Now.ToString() + "-" + str);
+            //sw.Close();
         }
         private void WorkThread(object obj)
         {
@@ -83,10 +87,14 @@ namespace TheiaClient
                 {
                     MessageBox.Show("1");
                 }
-                this.textBox1.Text += "From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
-                SimpleDebug("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                var msgtype = Basic.JsonBase.GetMsgType(str);
+                if (msgtype != 201)
+                {
+                    listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                    SimpleDebug("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                }
                 //this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
-                switch (Basic.JsonBase.GetMsgType(str))
+                switch (msgtype)
                 {
                     //for server
                     case 201:

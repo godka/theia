@@ -12,6 +12,8 @@ namespace TheiaClient
     {
         public class m3u8Detail
         {
+            
+            public VideoHandler handler{get;set;}
             private string _tsfile;
             private double _timespan;
             private int _bandwidth;
@@ -41,6 +43,7 @@ namespace TheiaClient
                 _tsfile = file;
                 _timespan = timespan;
                 _bandwidth = bandwidth;
+                handler = null;
             }
         }
         public int VERSION

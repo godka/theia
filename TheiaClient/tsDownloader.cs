@@ -44,6 +44,7 @@ namespace TheiaClient
                 try
                 {
                     myWebClient.DownloadFile(uri, "./tmp/" + filename);
+                    IsOK = true;
                     return;
 
                 }
@@ -161,9 +162,10 @@ namespace TheiaClient
         {
             foreach (var t in DownLoadList)
             {
-                if (t.Value.GetHandler().GetFileName().Equals(name))
+                var ret = t.Value.GetHandler(name);
+                if (ret != null)
                 {
-                    return t.Value.GetHandler();
+                    return ret;
                 }
             }
             return null;
@@ -179,7 +181,7 @@ namespace TheiaClient
     }
     public class m3u8Downloader
     {
-        private VideoHandler _videohandler = null;
+        //private VideoHandler _videohandler = null;
         public string _m3u8file;
         m3u8List m3u8list;
         UDPSocket _udpsocket;
@@ -192,23 +194,46 @@ namespace TheiaClient
             var reader = new m3u8Reader(_m3u8file);
             m3u8list = reader.Parse();
         }
-        public VideoHandler GetHandler()
+        public VideoHandler GetHandler(string filename)
         {
-            return _videohandler;
+            VideoHandler _handler = null;
+            foreach (var t in m3u8list.Detail)
+            {
+                if (t.file.Equals(filename))
+                {
+                    _handler = t.handler;
+                    break;
+                }
+            }
+            return _handler;
         }
         private void LoopWhileDone(string filename)
         {
+            VideoHandler _handler = null;
+
             for (; ; )
             {
-                if (_videohandler != null)
+                if (_handler != null)
                 {
-                    if (_videohandler.DownloadComplete())
+                    if (_handler.DownloadComplete())
+                    {
                         break;
+                    }
                     else
+                    {
                         Thread.Sleep(1);
+                    }
                 }
                 else
                 {
+                    foreach (var t in m3u8list.Detail)
+                    {
+                        if (t.file.Equals(filename))
+                        {
+                            _handler = t.handler;
+                            break;
+                        }
+                    }
                     Thread.Sleep(1);
                 }
             }
@@ -216,12 +241,19 @@ namespace TheiaClient
 
         public bool AddHandler(VideoHandler _handler)
         {
-            if (_handler != null)
+            if (_handler == null)
                 return false;
-            if (_request_file.Equals(_handler.GetFileName()))
+            foreach (var t in m3u8list.Detail)
             {
-                _videohandler = _handler;
-                return true;
+                if(t.file.Equals(_handler.GetFileName()))
+                {
+                    if (t.handler == null)
+                    {
+                        t.handler = _handler;
+                        t.handler.Start();
+                    }
+                    return true;
+                }
             }
             return false;
 
@@ -233,7 +265,7 @@ namespace TheiaClient
             {
                 if (_udpsocket != null)
                 {
-                    _videohandler = null;
+                    //_videohandler = null;
                     Request.Client cli = new Request.Client(t.file);
                     _request_file = t.file;
                     _udpsocket.send(Global.trackerip, Global.trackerport, cli.ToString());
