@@ -22,6 +22,7 @@ namespace TheiaClient
         List<workclass> worklist = new List<workclass>();
         m3u8DownloadContainer container = new m3u8DownloadContainer();
         UDPSocket udpsocket = null;
+        private object writeobj = new object();
         public VideoForm()
         {
             if (!Directory.Exists("./tmp"))
@@ -47,7 +48,7 @@ namespace TheiaClient
             var msgtype = Basic.JsonBase.GetMsgType(str);
             if (msgtype != 101)
             {
-                listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                //listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 // this.textBox1.Text += "Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str + "\r\n";
                 SimpleDebug("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 //this.listBox2.Items.Add("Send " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
@@ -67,9 +68,12 @@ namespace TheiaClient
         }
         private void SimpleDebug(string str)
         {
-            //StreamWriter sw = new StreamWriter("./debug.txt", true);
-            //sw.WriteLine(DateTime.Now.ToString() + "-" + str);
-            //sw.Close();
+            lock (writeobj)
+            {
+                StreamWriter sw = new StreamWriter("./debug.txt", true);
+                sw.WriteLine(DateTime.Now.ToString() + "-" + str);
+                sw.Close();
+            }
         }
         private void WorkThread(object obj)
         {
@@ -90,7 +94,7 @@ namespace TheiaClient
                 var msgtype = Basic.JsonBase.GetMsgType(str);
                 if (msgtype != 201)
                 {
-                    listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                    //listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                     SimpleDebug("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 }
                 //this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
@@ -266,6 +270,8 @@ namespace TheiaClient
             {
                 MessageBox.Show("下载失败");
             }
+            this.videoplayer1.FileName = "./LipReading_640_360_00000.ts";
+            this.videoplayer1.Play();
         }
 
         private void timer1_Tick(object sender, EventArgs e)

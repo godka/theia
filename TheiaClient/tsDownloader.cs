@@ -31,7 +31,26 @@ namespace TheiaClient
             _udpsocket = udpsocket;
             _req = req;
         }
-
+        public void RefreshRequest()
+        {
+            foreach (var t in _req.FileList)
+            {
+                if (bytelist[t.trunk] == null)
+                {
+                    if (_udpsocket != null)
+                    {
+                        //resend request
+                        FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
+                        _udpsocket.send(t.ip, t.port, cli.ToJson());
+                        if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
+                        {
+                            WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
+                            _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
+                        }
+                    }
+                }
+            }
+        }
         private void ThreadMethod(Object obj)
         {
             if (_req.Len() == 0)
@@ -127,7 +146,7 @@ namespace TheiaClient
                     }
                 }
             }
-            if (allok)
+            if (allok && _req.FileList.Count > 0)
             {
                 CombineFiles(_req.FileName);
             }
@@ -210,7 +229,7 @@ namespace TheiaClient
         private void LoopWhileDone(string filename)
         {
             VideoHandler _handler = null;
-
+            var time = Environment.TickCount;
             for (; ; )
             {
                 if (_handler != null)
@@ -221,6 +240,12 @@ namespace TheiaClient
                     }
                     else
                     {
+                        var realtime = Environment.TickCount;
+                        if (realtime - time >= 5000)
+                        {
+                            _handler.RefreshRequest();
+                            time = Environment.TickCount;
+                        }
                         Thread.Sleep(1);
                     }
                 }

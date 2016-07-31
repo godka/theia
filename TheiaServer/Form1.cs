@@ -10,10 +10,13 @@ using System.Windows.Forms;
 using System.Net.Udp;
 using System.Net;
 using Theia.P2P;
+using System.Threading;
 namespace TheiaServer
 {
     public partial class Form1 : Form
     {
+        List<workclass> worklist = new List<workclass>();
+        private Object thisLock = new Object();
         UDPSocket udpsocket = null;
         Dictionary<string, HeartBreak.Client> clientlist;
         public Form1()
@@ -22,6 +25,7 @@ namespace TheiaServer
             InitializeComponent();
             clientlist = new Dictionary<string, HeartBreak.Client>();
             this.FormClosed += Form1_FormClosed;
+            ThreadPool.QueueUserWorkItem(this.WorkThread);
             //IPEndPoint ip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
             //MessageBox.Show(ip.ToString());
         }
@@ -33,19 +37,22 @@ namespace TheiaServer
         }
         private void OnRefreshListbox()
         {
-            foreach (var t in clientlist)
+            lock (thisLock)
             {
-                if (!listBox1.Items.Contains(t.Key))
+                foreach (var t in clientlist)
                 {
-                    listBox1.Items.Add(t.Key);
+                    if (!listBox1.Items.Contains(t.Key))
+                    {
+                        listBox1.Items.Add(t.Key);
+                    }
                 }
-            }
-            for (int i = 0; i < listBox1.Items.Count; i++)
-            {
-                var t = listBox1.Items[i];
+                for (int i = 0; i < listBox1.Items.Count; i++)
+                {
+                    var t = listBox1.Items[i];
 
-                if (!clientlist.ContainsKey(t.ToString()))
-                    listBox1.Items.Remove(t.ToString());
+                    if (!clientlist.ContainsKey(t.ToString()))
+                        listBox1.Items.Remove(t.ToString());
+                }
             }
         }
         private void OnClientClose(object obj)
@@ -57,23 +64,26 @@ namespace TheiaServer
                 var ticks = Environment.TickCount;
                 //shut down the false positive client
 
-                foreach (var t in clientlist)
+                lock (thisLock)
                 {
-                    var value = t.Value;
-                    if (value.TickCount < (ticks - 10000))//小于5秒的基本算失联了
+                    foreach (var t in clientlist)
                     {
-                        tmpdellist.Add(t.Key);
-                        //clientlist.Remove(t.Key);
+                        var value = t.Value;
+                        if (value.TickCount < (ticks - 10000))//小于5秒的基本算失联了
+                        {
+                            tmpdellist.Add(t.Key);
+                            //clientlist.Remove(t.Key);
+                        }
                     }
-                }
 
-                foreach (var t in tmpdellist)
-                {
-                    clientlist.Remove(t);
+                    foreach (var t in tmpdellist)
+                    {
+                        clientlist.Remove(t);
+                    }
                 }
                 OnRefreshListbox();
             }
-            catch(Exception ee)
+            catch (Exception ee)
             {
                 MessageBox.Show(ee.Message);
             }
@@ -89,12 +99,12 @@ namespace TheiaServer
                 port = int.Parse(t[1]);
             }
         }
-        Request.Server CheckListForRequest(IPEndPoint endpoint,Request.Client cli)
+        Request.Server CheckListForRequest(IPEndPoint endpoint, Request.Client cli)
         {
             List<string> tmplist = new List<string>();
             var filename = cli.RequestFileName;
             long filelen = 0;
-            lock (clientlist)
+            lock (thisLock)
             {
                 foreach (var t in clientlist)
                 {
@@ -137,60 +147,91 @@ namespace TheiaServer
             //}
             return serv;
         }
+        public class workclass
+        {
+            public System.Net.IPEndPoint endpoint;
+            public string str;
+        }
+        private void WorkThread(object obj)
+        {
+            for (; ; )
+            {
+                if (worklist.Count == 0)
+                {
+                    Thread.Sleep(1);
+                    continue;
+                }
+                var tmps = worklist[0];
+                var endpoint = tmps.endpoint;
+                var str = tmps.str;
+                if (str == "")
+                {
+                    MessageBox.Show("1");
+                }
+                this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                switch (Basic.JsonBase.GetMsgType(str))
+                {
+                    case 101:
+                        {
+                            //heartbreak;
+                            HeartBreak.Client cli = Basic.JsonBase.FromJson<HeartBreak.Client>(str);
+                            lock (thisLock)
+                            {
+                                if (clientlist.ContainsKey(endpoint.ToString()))
+                                {
+                                    clientlist[endpoint.ToString()] = cli;
+                                }
+                                else
+                                {
+                                    clientlist.Add(endpoint.ToString(), cli);
+                                }
+                            }
+                            HeartBreak.Server serv = new HeartBreak.Server();
+                            udpsocket.send(endpoint, serv.ToString());
+                            //if(clientlist.)
+                        }
+                        break;
+                    case 102:
+                        {
+                            Request.Client cli = Basic.JsonBase.FromJson<Request.Client>(str);
+                            string filename = cli.RequestFileName;
+                            var ans = CheckListForRequest(endpoint, cli);
+                            udpsocket.send(endpoint, ans.ToString());
+                        }
+                        break;
+                    case 105:
+                        {
+                            TimeTick.Server server = new TimeTick.Server();
+                            udpsocket.send(endpoint, server.ToJson());
+                        }
+                        break;
+                    case 106:
+                        {
+                            WantsCall.Client client = Basic.JsonBase.FromJson<WantsCall.Client>(str);
+                            WantsCall.Server serv = new WantsCall.Server(endpoint.Address.ToString(), endpoint.Port);
+                            udpsocket.send(client.ip, client.port, serv.ToString());
+
+                        }
+                        break;
+                    default:
+                        {
+
+                        }
+                        break;
+                }
+                worklist.RemoveAt(0);
+
+            }
+        }
+
         void udpsocket_SOCKETEventArrive(System.Net.IPEndPoint endpoint, string str)
         {
             //throw new NotImplementedException();
-            this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":"  + endpoint.Port.ToString() + " - " + str);
-            switch (Basic.JsonBase.GetMsgType(str))
-            {
-                case 101:
-                    {
-                        //heartbreak;
-                        HeartBreak.Client cli = Basic.JsonBase.FromJson<HeartBreak.Client>(str);
-                        lock (clientlist)
-                        {
-                            if (clientlist.ContainsKey(endpoint.ToString()))
-                            {
-                                clientlist[endpoint.ToString()] = cli;
-                            }
-                            else
-                            {
-                                clientlist.Add(endpoint.ToString(), cli);
-                            }
-                        }
-                        HeartBreak.Server serv = new HeartBreak.Server();
-                        udpsocket.send(endpoint, serv.ToString());
-                        //if(clientlist.)
-                    }
-                    break;
-                case 102:
-                    {
-                        Request.Client cli = Basic.JsonBase.FromJson<Request.Client>(str);
-                        string filename = cli.RequestFileName;
-                        var ans = CheckListForRequest(endpoint,cli);
-                        udpsocket.send(endpoint, ans.ToString());
-                    }
-                    break;
-                case 105:
-                    {
-                        TimeTick.Server server = new TimeTick.Server();
-                        udpsocket.send(endpoint, server.ToJson());
-                    }
-                    break;
-                case 106:
-                    {
-                        WantsCall.Client client = Basic.JsonBase.FromJson<WantsCall.Client>(str);
-                        WantsCall.Server serv = new WantsCall.Server(endpoint.Address.ToString(), endpoint.Port);
-                        udpsocket.send(client.ip, client.port, serv.ToString());
+            workclass t = new workclass();
+            t.endpoint = endpoint;
+            t.str = str;
+            worklist.Add(t);
 
-                    }
-                    break;
-                default:
-                    {
-
-                    }
-                    break;
-            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
