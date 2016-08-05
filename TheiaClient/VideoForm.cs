@@ -263,6 +263,7 @@ namespace TheiaClient
                 }
                 myWebClient.DownloadFile(uri, "./tmp/" + filename);
                 m3u8Downloader downloader = new m3u8Downloader("./tmp/" + filename, udpsocket);
+                downloader._m3u8DownloaderComplete += downloader__m3u8DownloaderComplete;
                 container.AddDownloader(downloader);
                 //downloader.StartDownload();
             }
@@ -270,13 +271,24 @@ namespace TheiaClient
             {
                 MessageBox.Show("下载失败");
             }
-            this.videoplayer1.FileName = "./LipReading_640_360_00000.ts";
-            this.videoplayer1.Play();
+        }
+
+        void downloader__m3u8DownloaderComplete(string filename)
+        {
+
+            //throw new NotImplementedException();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             OnClientSend(this);
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+
+            this.videoplayer1.FileName = "./tmp/test.m3u8";
+            this.videoplayer1.Play();
         }
     }
 }

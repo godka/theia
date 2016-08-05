@@ -200,6 +200,18 @@ namespace TheiaClient
     }
     public class m3u8Downloader
     {
+
+        /// <summary> 
+        /// 定义委托 
+        /// </summary> 
+        public delegate void m3u8DownloaderComplete(string filename);
+
+
+
+        /// <summary> 
+        /// 定义一个消息接收事件 
+        /// </summary> 
+        public event m3u8DownloaderComplete _m3u8DownloaderComplete;
         //private VideoHandler _videohandler = null;
         public string _m3u8file;
         m3u8List m3u8list;
@@ -236,6 +248,10 @@ namespace TheiaClient
                 {
                     if (_handler.DownloadComplete())
                     {
+                        if (_m3u8DownloaderComplete != null)
+                        {
+                            _m3u8DownloaderComplete(filename);
+                        }
                         break;
                     }
                     else
