@@ -22,11 +22,11 @@ Private Declare Function BigPotClose Lib "BigPot.dll" (ByVal handle As Long) As 
         [DllImport("BigPot.dll")]
         private extern static int BigPotInit(IntPtr handle);
         [DllImport("BigPot.dll")]
-        private extern static int BigPotInputVideo(int handle,char[] filename,int seektime);
+        private extern static int BigPotInputVideo(int handle,char[] filename);
         [DllImport("BigPot.dll")]
         private extern static int BigPotSeek(int handle, int seektime);
         [DllImport("BigPot.dll")]
-        private extern static int BigPotClose(int handle, char[] filename);
+        private extern static int BigPotClose(int handle);
         bool isplaying;
         public delegate void OnVideoTimeChanged(object sender, int videotime, int totaltime);
         public delegate void OnVideoStop(object sender);
@@ -77,12 +77,12 @@ Private Declare Function BigPotClose Lib "BigPot.dll" (ByVal handle As Long) As 
             isplaying = true;
             if (FileName.Equals(string.Empty))
                 return;
-            BigPotInputVideo(handle, _char_filename, seektime);
+            BigPotInputVideo(handle, _char_filename);
         }
 
         public void Stop()
         {
-            BigPotClose(handle,_char_filename);
+            BigPotClose(handle);
             isplaying = false;
         }
         private void SetSeekTime(int seektime)

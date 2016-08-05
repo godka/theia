@@ -241,7 +241,7 @@ namespace TheiaClient
                     else
                     {
                         var realtime = Environment.TickCount;
-                        if (realtime - time >= 5000)
+                        if (realtime - time >= 1000)
                         {
                             _handler.RefreshRequest();
                             time = Environment.TickCount;
