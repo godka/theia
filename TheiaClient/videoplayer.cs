@@ -77,7 +77,7 @@ Private Declare Function BigPotClose Lib "BigPot.dll" (ByVal handle As Long) As 
             isplaying = true;
             if (FileName.Equals(string.Empty))
                 return;
-            BigPotInputVideo(handle, _char_filename);
+            System.Threading.ThreadPool.QueueUserWorkItem((obj) => { BigPotInputVideo(handle, _char_filename); });   
         }
 
         public void Stop()
