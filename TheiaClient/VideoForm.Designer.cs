@@ -74,6 +74,7 @@
             // 
             this.videoplayer1.BackColor = System.Drawing.Color.Black;
             this.videoplayer1.FileName = null;
+            this.videoplayer1.isplaying = false;
             this.videoplayer1.Location = new System.Drawing.Point(214, 28);
             this.videoplayer1.Name = "videoplayer1";
             this.videoplayer1.Size = new System.Drawing.Size(961, 630);
@@ -89,6 +90,7 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(196, 520);
             this.listBox1.TabIndex = 5;
+            this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
             // button1
             // 

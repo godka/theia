@@ -204,7 +204,7 @@ namespace TheiaClient
         /// <summary> 
         /// 定义委托 
         /// </summary> 
-        public delegate void m3u8DownloaderComplete(string filename);
+        public delegate void m3u8DownloaderComplete(string m3u8filename,string filename);
 
 
 
@@ -250,7 +250,7 @@ namespace TheiaClient
                     {
                         if (_m3u8DownloaderComplete != null)
                         {
-                            _m3u8DownloaderComplete(filename);
+                            _m3u8DownloaderComplete(_m3u8file,filename);
                         }
                         break;
                     }

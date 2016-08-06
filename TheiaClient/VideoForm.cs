@@ -273,9 +273,13 @@ namespace TheiaClient
             }
         }
 
-        void downloader__m3u8DownloaderComplete(string filename)
+        void downloader__m3u8DownloaderComplete(string m3u8filename,string filename)
         {
-
+            if (!this.videoplayer1.isplaying)
+            {
+                this.videoplayer1.FileName = m3u8filename;
+                this.videoplayer1.Play();
+            }
             //throw new NotImplementedException();
         }
 
@@ -287,7 +291,7 @@ namespace TheiaClient
         private void button1_Click_1(object sender, EventArgs e)
         {
 
-            this.videoplayer1.FileName = "./tmp/test.m3u8";
+            this.videoplayer1.FileName = "./tmp/lipreading_640_360.m3u8";
             this.videoplayer1.Play();
         }
     }

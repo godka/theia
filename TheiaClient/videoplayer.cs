@@ -27,7 +27,7 @@ Private Declare Function BigPotClose Lib "BigPot.dll" (ByVal handle As Long) As 
         private extern static int BigPotSeek(int handle, int seektime);
         [DllImport("BigPot.dll")]
         private extern static int BigPotClose(int handle);
-        bool isplaying;
+        public bool isplaying{get;set;}
         public delegate void OnVideoTimeChanged(object sender, int videotime, int totaltime);
         public delegate void OnVideoStop(object sender);
         char[] _char_filename;
