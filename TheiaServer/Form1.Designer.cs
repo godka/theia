@@ -32,7 +32,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listView1 = new System.Windows.Forms.ListView();
             this.listBox2 = new System.Windows.Forms.ListBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
@@ -66,21 +65,13 @@
             this.listBox1.Size = new System.Drawing.Size(128, 604);
             this.listBox1.TabIndex = 2;
             // 
-            // listView1
-            // 
-            this.listView1.Location = new System.Drawing.Point(148, 42);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(767, 317);
-            this.listView1.TabIndex = 3;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            // 
             // listBox2
             // 
             this.listBox2.FormattingEnabled = true;
             this.listBox2.ItemHeight = 12;
-            this.listBox2.Location = new System.Drawing.Point(148, 365);
+            this.listBox2.Location = new System.Drawing.Point(148, 41);
             this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(768, 280);
+            this.listBox2.Size = new System.Drawing.Size(768, 604);
             this.listBox2.TabIndex = 4;
             // 
             // timer1
@@ -95,7 +86,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(928, 659);
             this.Controls.Add(this.listBox2);
-            this.Controls.Add(this.listView1);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
@@ -111,7 +101,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.ListView listView1;
         private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.Timer timer1;
     }
