@@ -35,17 +35,19 @@ namespace TheiaClient
         {
             foreach (var t in _req.FileList)
             {
-                if (bytelist[t.trunk] == null)
-                {
-                    if (_udpsocket != null)
+                if (t.trunk < bytelist.Count && t.trunk >= 0) {
+                    if (bytelist[t.trunk] == null)
                     {
-                        //resend request
-                        FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
-                        _udpsocket.send(t.ip, t.port, cli.ToJson());
-                        if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
+                        if (_udpsocket != null)
                         {
-                            WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
-                            _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
+                            //resend request
+                            FileTrans.Client cli = new FileTrans.Client(t.filename, t.trunk);
+                            _udpsocket.send(t.ip, t.port, cli.ToJson());
+                            if (!Global.iphashset.Contains(t.ip + ":" + t.port.ToString()))
+                            {
+                                WantsCall.Client wantscli = new WantsCall.Client(t.ip, t.port);
+                                _udpsocket.send(Global.trackerip, Global.trackerport, wantscli.ToString());
+                            }
                         }
                     }
                 }
@@ -72,6 +74,7 @@ namespace TheiaClient
                     return;
                 }
             }
+            bytelist.Clear();
             foreach (var t in _req.FileList)
             {
                 bytelist.Add(null); 

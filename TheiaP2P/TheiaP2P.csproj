@@ -45,6 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basic.cs" />
+    <Compile Include="DoubleBufferListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FileTrans.cs" />
     <Compile Include="HeartBreak.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

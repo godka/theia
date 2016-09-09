@@ -209,7 +209,7 @@ namespace TheiaClient
             TimeTick.Client cli = new TimeTick.Client();
             udpsocket.send(Global.trackerip, Global.trackerport, cli.ToJson());
         }
-        int index = 0;
+        //int index = 0;
         private void Form1_Load(object sender, EventArgs e)
         {
             SendTick();

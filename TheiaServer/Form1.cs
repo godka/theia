@@ -152,6 +152,19 @@ namespace TheiaServer
             public System.Net.IPEndPoint endpoint;
             public string str;
         }
+        private void UpdateLogs(workclass cls)
+        {
+            var endpoint = cls.endpoint;
+            ListViewItem listviewitem = new ListViewItem(endpoint.Address.ToString() + ":" + endpoint.Port.ToString());
+
+            var type = Basic.JsonBase.GetMsgType(cls.str);
+            if (type != 101)
+            {
+                listviewitem.SubItems.Add(type.ToString());
+                listviewitem.SubItems.Add(cls.str);
+                this.listView1.Items.Add(listviewitem);
+            }
+        }
         private void WorkThread(object obj)
         {
             for (; ; )
@@ -162,13 +175,18 @@ namespace TheiaServer
                     continue;
                 }
                 var tmps = worklist[0];
+                if (tmps == null)
+                {
+                    continue;
+                }
                 var endpoint = tmps.endpoint;
                 var str = tmps.str;
                 if (str == "")
                 {
                     MessageBox.Show("1");
                 }
-                this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
+                UpdateLogs(tmps);
+                //this.listBox2.Items.Add("From " + endpoint.Address.ToString() + ":" + endpoint.Port.ToString() + " - " + str);
                 switch (Basic.JsonBase.GetMsgType(str))
                 {
                     case 101:
@@ -266,6 +284,21 @@ namespace TheiaServer
         private void timer1_Tick(object sender, EventArgs e)
         {
             OnClientClose(this);
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (listView1.SelectedItems.Count > 0)
+            {
+                this.textBox1.Text = this.listView1.SelectedItems[0].SubItems[2].Text;
+            }
+            //int index = listView1.SelectedItems[0];
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = listBox1.SelectedIndex;
+
         }
     }
 }
