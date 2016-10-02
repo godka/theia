@@ -68,12 +68,12 @@ namespace TheiaClient
         }
         private void SimpleDebug(string str)
         {
-            lock (writeobj)
-            {
-                StreamWriter sw = new StreamWriter("./debug.txt", true);
-                sw.WriteLine(DateTime.Now.ToString() + "-" + str);
-                sw.Close();
-            }
+            //lock (writeobj)
+            //{
+            //    StreamWriter sw = new StreamWriter("./debug.txt", true);
+            //    sw.WriteLine(DateTime.Now.ToString() + "-" + str);
+            //    sw.Close();
+            //}
         }
         private void WorkThread(object obj)
         {

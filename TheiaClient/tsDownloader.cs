@@ -90,10 +90,23 @@ namespace TheiaClient
                 }
             }
         }
+        private bool _wantscall = false;
+        private void sendwantscli(Object obj)
+        {
+            for (; ; )
+            {
+                if (_wantscall)
+                {
 
+                    _wantscall = false;
+                }
+                Thread.Sleep(1000);
+            }
+        }
         public void Start()
         {
             ThreadPool.QueueUserWorkItem(ThreadMethod);
+            ThreadPool.QueueUserWorkItem(sendwantscli);
             return;
         }
 
